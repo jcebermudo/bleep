@@ -18,7 +18,7 @@ async function getLowRatedReviews(link: string) {
     
     let lowRatedReviews: Review[] = [];
     let attempts = 0;
-    const maxAttempts = 25; // Maximum 10 attempts to load more reviews
+    const maxAttempts = 50; // Maximum attempts to load more reviews
     let foundRecentLowRated = false;
     let firstAttempt = true;
 
