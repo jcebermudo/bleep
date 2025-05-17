@@ -62,7 +62,7 @@ async function getLowRatedReviews(link: string) {
                     if (!dateStr) return null;
 
                     // Get review text
-                    const textElement = item.querySelector('.h3YV2d');
+                    const textElement = item.querySelector('.fzDEpf');
                     const text = textElement ? textElement.textContent?.trim() || "" : "";
 
                     const dateObj = parseDate(dateStr);
@@ -92,11 +92,14 @@ async function getLowRatedReviews(link: string) {
                 };
             }, ninetyDaysAgo.toISOString());
 
+            
+
             // Check if we found recent low-rated reviews
             if (pageReviews.recentReviews.length > 0) {
                 // We found reviews in the last 90 days with less than 5 stars
                 lowRatedReviews = pageReviews.recentReviews;
                 foundRecentLowRated = true;
+
                 break; // Exit the loop as we found what we need
             } else if (firstAttempt && pageReviews.allReviews.length > 0) {
                 // If it's the first attempt and no recent low-rated reviews found,
@@ -116,20 +119,52 @@ async function getLowRatedReviews(link: string) {
 
             // Click the "Load more" button and wait for new content
             await loadMoreButton.click();
-            await page.waitForTimeout(1000); // Wait for content to load
+            await page.waitForSelector('.T7rvce'); // Wait for content to load
         }
 
         // If we've gone through all attempts and didn't find recent low-rated reviews,
         // use the ones we stored from the first attempt (if available)
         if (!foundRecentLowRated && lowRatedReviews.length === 0) {
-            // Get the first 15 low-rated reviews (this is a fallback, but should be handled by the first attempt logic)
+            // The first attempt fallback logic should have already handled this case
+            // But just in case, we'll implement a final attempt to get low-rated reviews
             const fallbackReviews = await page.$$eval('.T7rvce', (items) => {
-                // Similar logic as above to extract reviews with ratings less than 5
-                // Implementation omitted for brevity as it should already be handled
+                const getReviewDetails = (item: Element): { rating: number, text: string, date: string } | null => {
+                    // Get star rating
+                    const starElement = item.querySelector('.B1UG8d');
+                    if (!starElement) return null;
+
+                    const ariaLabel = starElement.getAttribute('aria-label');
+                    if (!ariaLabel) return null;
+
+                    const ratingMatch = ariaLabel.match(/(\d+) out of 5 stars/);
+                    if (!ratingMatch) return null;
+                    
+                    const rating = parseInt(ratingMatch[1]);
+                    if (rating === 5) return null; // Skip 5-star reviews
+                    
+                    // Get date
+                    const dateElement = item.querySelector('.ydlbEf');
+                    if (!dateElement) return null;
+
+                    const dateStr = dateElement.textContent?.trim() || "";
+                    
+                    // Get review text
+                    const textElement = item.querySelector('.fzDEpf');
+                    const text = textElement ? textElement.textContent?.trim() || "" : "";
+
+                    return {
+                        rating,
+                        text,
+                        date: dateStr
+                    };
+                };
+                
+                // Get all reviews with ratings less than 5
+                return items.map(getReviewDetails).filter(review => review !== null);
             });
             
             if (fallbackReviews && fallbackReviews.length > 0) {
-                lowRatedReviews = fallbackReviews.slice(0, 15);
+                lowRatedReviews = fallbackReviews.slice(0, 15) as Review[];
             }
         }
 
@@ -141,20 +176,5 @@ async function getLowRatedReviews(link: string) {
         return [];
     }
 }
-
-// Example usage
-async function main() {
-    const chromeExtensionUrl = "https://chrome.google.com/webstore/detail/your-extension-id";
-    const reviews = await getLowRatedReviews(chromeExtensionUrl);
-    
-    console.log(`Found ${reviews.length} low-rated reviews:`);
-    reviews.forEach((review, index) => {
-        console.log(`${index + 1}. Rating: ${review.rating}/5 - Date: ${review.date}`);
-        console.log(`   ${review.text.substring(0, 100)}${review.text.length > 100 ? '...' : ''}`);
-    });
-}
-
-// Uncomment to run:
-// main().catch(console.error);
 
 export { getLowRatedReviews };
