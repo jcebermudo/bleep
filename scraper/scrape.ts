@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+import puppeteer, { ElementHandle } from 'puppeteer';
 
 interface Review {
     rating: number;
@@ -27,7 +27,11 @@ async function getLowRatedReviews(link: string) {
             await page.waitForSelector('.T7rvce', { timeout: 5000 }).catch(() => null);
             while (attempts < maxAttempts) {
                 // 'button' is a CSS selector.
-                await page.locator('[jsname="Btxakc"]').click();
+                const button = await page.locator('[jsname="Btxakc"]');
+                if (!button) {
+                    break;
+                }
+                await button.click();
                 await page.waitForSelector('[jsname="Btxakc"]', { visible: true });
                 attempts++;
             }
