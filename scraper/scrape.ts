@@ -18,15 +18,19 @@ async function getLowRatedReviews(link: string) {
     
     let lowRatedReviews: Review[] = [];
     let attempts = 0;
-    const maxAttempts = 10; // Maximum 10 attempts to load more reviews
+    const maxAttempts = 25; // Maximum 10 attempts to load more reviews
     let foundRecentLowRated = false;
     let firstAttempt = true;
 
     try {
-        while (attempts < maxAttempts) {
             // Wait for reviews to load
             await page.waitForSelector('.T7rvce', { timeout: 5000 }).catch(() => null);
-
+            while (attempts < maxAttempts) {
+                // 'button' is a CSS selector.
+                await page.locator('[jsname="Btxakc"]').click();
+                await page.waitForSelector('[jsname="Btxakc"]', { visible: true });
+                attempts++;
+            }
             // Extract reviews from the current page
             const pageReviews = await page.$$eval('.T7rvce', (items, ninetyDaysAgoStr) => {
                 const parseDate = (dateStr: string): Date | null => {
@@ -99,8 +103,6 @@ async function getLowRatedReviews(link: string) {
                 // We found reviews in the last 90 days with less than 5 stars
                 lowRatedReviews = pageReviews.recentReviews;
                 foundRecentLowRated = true;
-
-                break; // Exit the loop as we found what we need
             } else if (firstAttempt && pageReviews.allReviews.length > 0) {
                 // If it's the first attempt and no recent low-rated reviews found,
                 // store the latest 15 or fewer low-rated reviews
@@ -108,19 +110,6 @@ async function getLowRatedReviews(link: string) {
             }
             
             firstAttempt = false;
-            attempts++;
-
-            // Try to click "Load more" button
-            const loadMoreButton = await page.$('button.U26fgb.c7fp5b.FS4hgd[aria-label="Load more"]');
-            if (!loadMoreButton) {
-                // No more "Load more" button found
-                break;
-            }
-
-            // Click the "Load more" button and wait for new content
-            await loadMoreButton.click();
-            await page.waitForSelector('.T7rvce'); // Wait for content to load
-        }
 
         // If we've gone through all attempts and didn't find recent low-rated reviews,
         // use the ones we stored from the first attempt (if available)
