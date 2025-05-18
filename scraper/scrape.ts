@@ -18,21 +18,16 @@ async function getLowRatedReviews(link: string) {
     
     let lowRatedReviews: Review[] = [];
     let attempts = 0;
-    const maxAttempts = 50; // Maximum attempts to load more reviews
+    const maxAttempts = 5; // Maximum attempts to load more reviews
     let foundRecentLowRated = false;
     let firstAttempt = true;
 
     try {
             // Wait for reviews to load
-            await page.waitForSelector('.T7rvce', { timeout: 5000 }).catch(() => null);
+            await page.waitForSelector('.T7rvce');
             while (attempts < maxAttempts) {
                 // 'button' is a CSS selector.
-                const button = await page.locator('[jsname="Btxakc"]');
-                if (!button) {
-                    break;
-                }
-                await button.click();
-                await page.waitForSelector('[jsname="Btxakc"]', { visible: true });
+                await page.locator('[jscontroller="O626Fe"]').click();
                 attempts++;
             }
             // Extract reviews from the current page
