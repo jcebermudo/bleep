@@ -15,7 +15,7 @@ async function getLowRatedReviews(link: string) {
   const browser = await puppeteer.launch({
     args: isLocal ? puppeteer.defaultArgs() : chromium.args,
     defaultViewport: chromium.defaultViewport,
-    executablePath: process.env.CHROME_EXECUTABLE_PATH || await chromium.executablePath('https://materwhgkhhs6p6w.public.blob.vercel-storage.com/chromium-v133.0.0-pack-aPQB8WkGuExmtVa1WrudIWRI6iXlI1.tar'),
+    executablePath: process.env.CHROME_EXECUTABLE_PATH || await chromium.executablePath('https://github.com/Sparticuz/chromium/releases/download/v133.0.0/chromium-v133.0.0-pack.tar'),
     headless: chromium.headless,
   });
   const page = await browser.newPage();
