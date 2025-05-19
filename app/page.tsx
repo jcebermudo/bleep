@@ -1,6 +1,4 @@
 "use client";
-
-import { getLowRatedReviews } from "@/scraper/scrape";
 import { useState } from "react";
 
 interface Review {
@@ -17,7 +15,6 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
     setLoading(true);
     setError(null);
     try {
@@ -39,8 +36,10 @@ export default function Home() {
       setReviews(data.reviews);
     } catch (error) {
       setError("Failed to fetch reviews");
+      console.log(error);
     } finally {
       setLoading(false);
+      console.log(loading);
     }
   };
 
