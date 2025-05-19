@@ -23,19 +23,22 @@ export default function Home() {
     try {
       const formData = new FormData(e.currentTarget);
       const link = formData.get("link") as string;
-      const response = await fetch('/api/scrape', {
-        method: 'POST',
-        body: JSON.stringify({ link })
-      }).then(r => r.json());
+      const response = await fetch("/api/scrape", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ link }),
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch reviews');
+        throw new Error("Failed to fetch reviews");
       }
 
-      const data = response;
+      const data = await response.json();
       setReviews(data.reviews);
     } catch (error) {
-      setError('Failed to fetch reviews');
+      setError("Failed to fetch reviews");
     } finally {
       setLoading(false);
     }
@@ -49,7 +52,7 @@ export default function Home() {
       </form>
       {reviews.map((review, index) => (
         <div key={index}>
-          s<p>{review.text}</p>
+          <p>{review.text}</p>
           <p>{review.rating}</p>
           <p>{review.date}</p>
         </div>
