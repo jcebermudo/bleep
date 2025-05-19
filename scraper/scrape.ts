@@ -1,4 +1,5 @@
-import puppeteer from "puppeteer-core";
+import chromium from '@sparticuz/chromium-min';
+import puppeteer from 'puppeteer-core';
 import { setTimeout } from "node:timers/promises";
 import dayjs from "dayjs";
 
@@ -10,22 +11,13 @@ interface Review {
 }
 
 async function getLowRatedReviews(link: string) {
-const puppeteer = require("puppeteer-core");
-const chromium = require("@sparticuz/chromium");
+  const isLocal = !!process.env.CHROME_EXECUTABLE_PATH;
   const dayjs = require("dayjs");
-  const viewport = {
-    deviceScaleFactor: 1,
-    hasTouch: false,
-    height: 1080,
-    isLandscape: true,
-    isMobile: false,
-    width: 1920,
-  };
   const browser = await puppeteer.launch({
-    args: puppeteer.defaultArgs({ args: chromium.args, headless: "shell" }),
-    defaultViewport: viewport,
-    executablePath: await chromium.executablePath("https://materwhgkhhs6p6w.public.blob.vercel-storage.com/chromium-v133.0.0-pack-aPQB8WkGuExmtVa1WrudIWRI6iXlI1.tar"),
-    headless: "shell",
+    args: isLocal ? puppeteer.defaultArgs() : chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: process.env.CHROME_EXECUTABLE_PATH || await chromium.executablePath('https://materwhgkhhs6p6w.public.blob.vercel-storage.com/chromium-v133.0.0-pack-aPQB8WkGuExmtVa1WrudIWRI6iXlI1.tar'),
+    headless: chromium.headless,
   });
   const page = await browser.newPage();
   await page.goto(`${link}/reviews`);
@@ -166,43 +158,50 @@ const chromium = require("@sparticuz/chromium");
     if (!foundRecentLowRated && lowRatedReviews.length === 0) {
       // The first attempt fallback logic should have already handled this case
       // But just in case, we'll implement a final attempt to get low-rated reviews
-      const fallbackReviews = await page.$$eval(".T7rvce", (items: Element[]) => {
-        const getReviewDetails = (
-          item: Element,
-        ): { rating: number; text: string; date: string } | null => {
-          // Get star rating
-          const starElement = item.querySelector(".B1UG8d");
-          if (!starElement) return null;
+      const fallbackReviews = await page.$$eval(
+        ".T7rvce",
+        (items: Element[]) => {
+          const getReviewDetails = (
+            item: Element,
+          ): { rating: number; text: string; date: string } | null => {
+            // Get star rating
+            const starElement = item.querySelector(".B1UG8d");
+            if (!starElement) return null;
 
-          const ariaLabel = starElement.getAttribute("aria-label");
-          if (!ariaLabel) return null;
+            const ariaLabel = starElement.getAttribute("aria-label");
+            if (!ariaLabel) return null;
 
-          const ratingMatch = ariaLabel.match(/(\d+) out of 5 stars/);
-          if (!ratingMatch) return null;
+            const ratingMatch = ariaLabel.match(/(\d+) out of 5 stars/);
+            if (!ratingMatch) return null;
 
-          const rating = parseInt(ratingMatch[1]);
-          if (rating === 5) return null; // Skip 5-star reviews
+            const rating = parseInt(ratingMatch[1]);
+            if (rating === 5) return null; // Skip 5-star reviews
 
-          // Get date
-          const dateElement = item.querySelector(".ydlbEf");
-          if (!dateElement) return null;
+            // Get date
+            const dateElement = item.querySelector(".ydlbEf");
+            if (!dateElement) return null;
 
-          const dateStr = dateElement.textContent?.trim() || "";
+            const dateStr = dateElement.textContent?.trim() || "";
 
-          // Get review text
-          const textElement = item.querySelector(".fzDEpf");
-          const text = textElement ? textElement.textContent?.trim() || "" : "";
+            // Get review text
+            const textElement = item.querySelector(".fzDEpf");
+            const text = textElement
+              ? textElement.textContent?.trim() || ""
+              : "";
 
-          return {
-            rating,
-            text,
-            date: dateStr,
+            return {
+              rating,
+              text,
+              date: dateStr,
+            };
           };
-        };
 
-        // Get all reviews with ratings less than 5
-        return items.map(getReviewDetails).filter((review) => review !== null);
-      });
+          // Get all reviews with ratings less than 5
+          return items
+            .map(getReviewDetails)
+            .filter((review) => review !== null);
+        },
+      );
 
       if (fallbackReviews && fallbackReviews.length > 0) {
         lowRatedReviews = fallbackReviews.slice(0, 15) as Review[];
