@@ -1,4 +1,4 @@
-import puppeteer, { ElementHandle } from "puppeteer";
+import puppeteer from "puppeteer-core";
 import { setTimeout } from "node:timers/promises";
 import dayjs from "dayjs";
 
@@ -10,8 +10,23 @@ interface Review {
 }
 
 async function getLowRatedReviews(link: string) {
+const puppeteer = require("puppeteer-core");
+const chromium = require("@sparticuz/chromium");
   const dayjs = require("dayjs");
-  const browser = await puppeteer.launch();
+  const viewport = {
+    deviceScaleFactor: 1,
+    hasTouch: false,
+    height: 1080,
+    isLandscape: true,
+    isMobile: false,
+    width: 1920,
+  };
+  const browser = await puppeteer.launch({
+    args: puppeteer.defaultArgs({ args: chromium.args, headless: "shell" }),
+    defaultViewport: viewport,
+    executablePath: await chromium.executablePath("https://materwhgkhhs6p6w.public.blob.vercel-storage.com/chromium-v133.0.0-pack-aPQB8WkGuExmtVa1WrudIWRI6iXlI1.tar"),
+    headless: "shell",
+  });
   const page = await browser.newPage();
   await page.goto(`${link}/reviews`);
   await page.waitForSelector(".T7rvce");
@@ -39,7 +54,7 @@ async function getLowRatedReviews(link: string) {
       await setTimeout(1000);
     }
     // Extract reviews from the current page
-    const pageReviews = await page.$$eval(".T7rvce", (items) => {
+    const pageReviews = await page.$$eval(".T7rvce", (items: Element[]) => {
       function convertDateFormat(dateString: string): string {
         // Map of month abbreviations to their numerical values
         const monthMap: Record<string, string> = {
@@ -126,7 +141,7 @@ async function getLowRatedReviews(link: string) {
 
     // Filter to get reviews from last 90 days
     const now = dayjs();
-    const recentReviews = pageReviews.filter((review) => {
+    const recentReviews = pageReviews.filter((review: Review) => {
       const targetDate = dayjs(review.date);
       const daysDifference = Math.abs(targetDate.diff(now, "day"));
       review.daysAgoSinceRetrieval = daysDifference;
@@ -151,7 +166,7 @@ async function getLowRatedReviews(link: string) {
     if (!foundRecentLowRated && lowRatedReviews.length === 0) {
       // The first attempt fallback logic should have already handled this case
       // But just in case, we'll implement a final attempt to get low-rated reviews
-      const fallbackReviews = await page.$$eval(".T7rvce", (items) => {
+      const fallbackReviews = await page.$$eval(".T7rvce", (items: Element[]) => {
         const getReviewDetails = (
           item: Element,
         ): { rating: number; text: string; date: string } | null => {
