@@ -36,10 +36,10 @@ export default function Home() {
       setReviews(data.reviews);
     } catch (error) {
       setError("Failed to fetch reviews");
-      console.log(error);
     } finally {
       setLoading(false);
       console.log(loading);
+      console.log(error);
     }
   };
 
