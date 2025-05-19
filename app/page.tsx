@@ -34,7 +34,7 @@ export default function Home() {
 
       const data = await response.json();
       setReviews(data.reviews);
-    } catch (error) {
+    } catch {
       setError("Failed to fetch reviews");
     } finally {
       setLoading(false);

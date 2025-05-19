@@ -6,7 +6,7 @@ export async function POST(request: Request) {
     const { link } = await request.json();
     const reviews = await getLowRatedReviews(link);
     return NextResponse.json({ reviews });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch reviews" },
       { status: 500 },
