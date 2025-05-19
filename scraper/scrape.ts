@@ -12,7 +12,6 @@ interface Review {
 
 async function getLowRatedReviews(link: string) {
   const isLocal = !!process.env.CHROME_EXECUTABLE_PATH;
-  const dayjs = require("dayjs");
   const browser = await puppeteer.launch({
     args: isLocal ? puppeteer.defaultArgs() : chromium.args,
     defaultViewport: chromium.defaultViewport,
