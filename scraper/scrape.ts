@@ -1,5 +1,5 @@
-import chromium from '@sparticuz/chromium-min';
-import puppeteer from 'puppeteer-core';
+import chromium from "@sparticuz/chromium-min";
+import puppeteer from "puppeteer-core";
 import { setTimeout } from "node:timers/promises";
 import dayjs from "dayjs";
 
@@ -15,7 +15,11 @@ async function getLowRatedReviews(link: string) {
   const browser = await puppeteer.launch({
     args: isLocal ? puppeteer.defaultArgs() : chromium.args,
     defaultViewport: chromium.defaultViewport,
-    executablePath: process.env.CHROME_EXECUTABLE_PATH || await chromium.executablePath('https://github.com/Sparticuz/chromium/releases/download/v133.0.0/chromium-v133.0.0-pack.tar'),
+    executablePath:
+      process.env.CHROME_EXECUTABLE_PATH ||
+      (await chromium.executablePath(
+        "https://github.com/Sparticuz/chromium/releases/download/v133.0.0/chromium-v133.0.0-pack.tar",
+      )),
     headless: chromium.headless,
   });
   const page = await browser.newPage();
@@ -99,8 +103,6 @@ async function getLowRatedReviews(link: string) {
         }
       }
 
-      
-
       const getReviewDetails = (item: Element): Review | null => {
         // Get star rating
         const starElement = item.querySelector(".B1UG8d");
@@ -122,15 +124,23 @@ async function getLowRatedReviews(link: string) {
         const dateStr = dateElement.textContent?.trim();
         if (!dateStr) return null;
 
-        // Get review text
         const textElement = item.querySelector(".fzDEpf");
-        const text = textElement ? textElement.textContent?.trim() || "" : "";
+        // const text = textElement ? textElement.textContent?.trim() || "" : "";
 
-        
+        // Create a clone and process it
+        let convertedText = "";
+        if (textElement) {
+          const clone = textElement.cloneNode(true) as HTMLElement;
+          // Remove all links
+          const links = clone.querySelectorAll("a");
+          links.forEach((link) => link.remove());
+          // Now get the text content after links are removed
+          convertedText = clone.textContent?.trim() || "";
+        }
 
         return {
           rating,
-          text,
+          text: convertedText,
           date: dateStr,
           daysAgoSinceRetrieval: 0,
         };
