@@ -44,6 +44,16 @@ async function getLowRatedReviews(link: string) {
 
       await setTimeout(1000);
     }
+
+    const showMoreExists = await page.$$('[jsname="JrM82d"]');
+    const noofShow = showMoreExists.length;
+    if (noofShow > 0) {
+      for (let i = 0; i < noofShow; i++) {
+        await page.waitForSelector('[jsname="JrM82d"]', { visible: true });
+        await page.locator('[jsname="JrM82d"]').click();
+        await setTimeout(1000);
+      }
+    }
     // Extract reviews from the current page
     const pageReviews = await page.$$eval(".T7rvce", (items: Element[]) => {
       function convertDateFormat(dateString: string): string {
@@ -89,6 +99,8 @@ async function getLowRatedReviews(link: string) {
         }
       }
 
+      
+
       const getReviewDetails = (item: Element): Review | null => {
         // Get star rating
         const starElement = item.querySelector(".B1UG8d");
@@ -113,6 +125,8 @@ async function getLowRatedReviews(link: string) {
         // Get review text
         const textElement = item.querySelector(".fzDEpf");
         const text = textElement ? textElement.textContent?.trim() || "" : "";
+
+        
 
         return {
           rating,
