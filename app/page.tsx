@@ -55,13 +55,15 @@ export default function Home() {
       </form>
       {loading && <p>Loading...</p>}
       {error && <p>{error}</p>}
-      {reviews.map((review, index) => (
-        <div key={index}>
-          <p>{review.text}</p>
-          <p>{review.rating}</p>
-          <p>{review.date}</p>
-        </div>
-      ))}
+      <div className="gap-16 flex flex-col">
+        {reviews.map((review, index) => (
+          <div key={index}>
+            <p>{review.text}</p>
+            <p>{review.rating}</p>
+            <p>{review.date}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -23,7 +23,9 @@ async function getLowRatedReviews(link: string) {
     headless: chromium.headless,
   });
   const page = await browser.newPage();
-  await page.goto(`${link}/reviews`);
+  await page.goto(`${link}/reviews`, {
+    waitUntil: "networkidle2",
+  });
   await page.waitForSelector(".T7rvce");
 
   let lowRatedReviews: Review[] = [];
@@ -36,19 +38,25 @@ async function getLowRatedReviews(link: string) {
     // Wait for reviews to load
     await page.waitForSelector(".T7rvce");
     while (attempts < maxAttempts) {
-      const elementExists = await page.waitForSelector('[jsname="Btxakc"]');
-      if (elementExists) {
-        await page.locator('[jsname="Btxakc"]').click();
-        attempts++;
-        console.log(attempts);
-      } else {
-        console.log("cant do nomo bro");
+      try {
+        // Try to find the "load more" button with a short timeout
+        const elementExists = await page.waitForSelector('[jsname="Btxakc"]', {
+          timeout: 1000,
+        });
+        if (elementExists) {
+          await page.locator('[jsname="Btxakc"]').click();
+          attempts++;
+          console.log(attempts);
+          // Wait a bit after clicking to let new content load
+          await setTimeout(500);
+        }
+      } catch {
+        // Element wasn't found within timeout - we've loaded all available reviews
+        console.log("No more load more button found, all reviews loaded");
         break;
       }
-
-      await setTimeout(1000);
     }
-
+    let attempshow = 0;
     const showMoreExists = await page.$$('[jsname="JrM82d"]');
     const noofShow = showMoreExists.length;
     if (noofShow > 0) {
@@ -56,6 +64,8 @@ async function getLowRatedReviews(link: string) {
         await page.waitForSelector('[jsname="JrM82d"]', { visible: true });
         await page.locator('[jsname="JrM82d"]').click();
         await setTimeout(1000);
+        attempshow++;
+        console.log(attempshow);
       }
     }
     // Extract reviews from the current page
@@ -172,6 +182,7 @@ async function getLowRatedReviews(link: string) {
       // If it's the first attempt and no recent low-rated reviews found,
       // store the latest 15 or fewer low-rated reviews
       lowRatedReviews = pageReviews.slice(0, 15);
+      console.log("im here")
     }
 
     firstAttempt = false;
@@ -208,13 +219,22 @@ async function getLowRatedReviews(link: string) {
 
             // Get review text
             const textElement = item.querySelector(".fzDEpf");
-            const text = textElement
-              ? textElement.textContent?.trim() || ""
-              : "";
+            // const text = textElement ? textElement.textContent?.trim() || "" : "";
+
+            // Create a clone and process it
+            let convertedText = "";
+            if (textElement) {
+              const clone = textElement.cloneNode(true) as HTMLElement;
+              // Remove all links
+              const links = clone.querySelectorAll("a");
+              links.forEach((link) => link.remove());
+              // Now get the text content after links are removed
+              convertedText = clone.textContent?.trim() || "";
+            }
 
             return {
               rating,
-              text,
+              text: convertedText,
               date: dateStr,
             };
           };
