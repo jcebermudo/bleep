@@ -10,6 +10,7 @@ interface Review {
   rating: number;
   text: string;
   date: string;
+  daysAgoSinceRetrieval: number;
 }
 
 export default async function Page({
@@ -17,6 +18,7 @@ export default async function Page({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+    let loading = true;
   const { slug } = await params;
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
@@ -36,6 +38,8 @@ export default async function Page({
       and(eq(project.project_uuid, slug), eq(project.user_uuid, data.user.id)),
     );
     const link = confirmation[0].link;
+    let officialInfo;
+    let officialReviews;
   if (!confirmation[0].name && !confirmation[0].icon && !confirmation[0].description) {
     const responseInfo = await fetch("/api/scrape_info", {
       method: "POST",
@@ -49,10 +53,11 @@ export default async function Page({
       throw new Error("Failed to fetch info");
     }
     const dataInfo = await responseInfo.json();
+    officialInfo = dataInfo.info;
     await db.update(project).set({
-      name: dataInfo.info.name,
-      icon: dataInfo.info.icon,
-      description: dataInfo.info.description,
+      name: officialInfo.name,
+      icon: officialInfo.icon,
+      description: officialInfo.description,
     }).where(
       and(eq(project.project_uuid, slug), eq(project.user_uuid, data.user.id)),
     );
@@ -68,19 +73,37 @@ export default async function Page({
       throw new Error("Failed to fetch reviews");
     }
     const dataReviews = await responseReviews.json();
-    await db.insert(reviews).values(dataReviews.reviews.map((review: Review) => ({
+    officialReviews = dataReviews.reviews;
+    await db.insert(reviews).values(officialReviews.map((review: Review) => ({
       project_id: confirmation[0].id,
       rating: review.rating,
       text: review.text,
       date: review.date,
+      days_ago_since_retrieval: review.daysAgoSinceRetrieval,
     })));
+    loading = false;
+  } else {
+    const dbReviews = await db.select().from(reviews).where(eq(reviews.project_id, confirmation[0].id));
+    const dbInfo = await db.select().from(project).where(and(eq(project.project_uuid, slug), eq(project.user_uuid, data.user.id)));
+    officialInfo = dbInfo[0];
+    officialReviews = dbReviews;
+    loading = false;
   }
 
   return (
     <>
       <div>
-        <h1>{confirmation[0].name}</h1>
-        <p>{confirmation[0].description}</p>
+        <h1>{officialInfo.name}</h1>
+        <p>{officialInfo.description}</p>
+      </div>
+      <div>
+        {officialReviews.map((review: Review, index: number) => (
+          <div key={index}>
+            <p>{review.text}</p>
+            <p>{review.rating}</p>
+            <p>{review.date}</p>
+          </div>
+        ))}
       </div>
     </>
   );
