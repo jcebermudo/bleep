@@ -15,6 +15,13 @@
       "when": 1747831548420,
       "tag": "0001_huge_black_crow",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1747844279719,
+      "tag": "0002_marvelous_mongoose",
+      "breakpoints": true
     }
   ]
 }

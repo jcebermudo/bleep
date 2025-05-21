@@ -22,6 +22,8 @@ export const reviews = pgTable("reviews", {
   text: text("text").notNull(),
   date: text("date").notNull(),
   days_ago_since_retrieval: integer("days_ago_since_retrieval").notNull(),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const chatMessages = pgTable("chat_messages", {

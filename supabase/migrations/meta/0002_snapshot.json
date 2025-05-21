@@ -1,6 +1,6 @@
 {
-  "id": "7fa02ebf-46bf-4787-80ea-28caf57aa814",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "a4310ae8-5e7f-4e7f-b275-10d26399cab2",
+  "prevId": "6563f436-4e69-47c7-b103-fc861ad80a83",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -53,8 +53,12 @@
           "name": "chat_messages_project_id_project_id_fk",
           "tableFrom": "chat_messages",
           "tableTo": "project",
-          "columnsFrom": ["project_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -83,6 +87,12 @@
         },
         "user_uuid": {
           "name": "user_uuid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "extension_link": {
+          "name": "extension_link",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -173,6 +183,20 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
@@ -181,8 +205,12 @@
           "name": "reviews_project_id_project_id_fk",
           "tableFrom": "reviews",
           "tableTo": "project",
-          "columnsFrom": ["project_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
