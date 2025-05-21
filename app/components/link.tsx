@@ -32,7 +32,7 @@ export default function Link() {
       const linkId = uuidv4();
       const formData = new FormData(e.currentTarget);
       const link = formData.get("link") as string;
-      const response = await fetch("/api/scrape", {
+      const response = await fetch("/api/scrape_reviews", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -59,7 +59,7 @@ export default function Link() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const link = formData.get("link") as string;
-    const response = await fetch("/api/scrape", {
+    const response = await fetch("/api/scrape_info", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
