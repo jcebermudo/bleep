@@ -10,7 +10,7 @@ interface ExtensionInfo {
 }
 
 export async function getExtensionInfo(link: string): Promise<ExtensionInfo> {
-  const isLocal = !!process.env.CHROME_EXECUTABLE_PATH;
+    const isLocal = !!process.env.CHROME_EXECUTABLE_PATH;
   const browser = await puppeteer.launch({
     args: isLocal ? puppeteer.defaultArgs() : chromium.args,
     defaultViewport: chromium.defaultViewport,
@@ -26,7 +26,7 @@ export async function getExtensionInfo(link: string): Promise<ExtensionInfo> {
     waitUntil: "networkidle2",
   });
   await page.waitForSelector(".rBxtY");
-  const icon = await page.$eval("rBxtY", (el) => el.getAttribute("src"));
+  const icon = await page.$eval(".rBxtY", (el) => el.getAttribute("src"));
   if (!icon) {
     throw new Error("Icon not found");
   }
@@ -36,11 +36,11 @@ export async function getExtensionInfo(link: string): Promise<ExtensionInfo> {
     throw new Error("Name not found");
   }
   await page.waitForSelector(".MHH2Z");
-  const seeMoreExists = await page.waitForSelector('jsname["rs1XOd"]');
+  const seeMoreExists = await page.waitForSelector('[jsname="rs1XOd"]');
   if (seeMoreExists) {
-    await page.locator('jsname["rs1XOd"]').click();
+    await page.locator('[jsname="rs1XOd"]').click();
   }
-  await page.waitForSelector('jsname["ij8cu"]');
+  await page.waitForSelector('[jsname="ij8cu"]');
   const description = await page.$eval('[jsname="ij8cu"]', (el) => {
     // Get all p tags within the element
     const paragraphs = Array.from(el.getElementsByTagName("p"));

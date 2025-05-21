@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
+import Image from "next/image"
 import { db } from "@/db";
 
 interface Review {
@@ -15,12 +16,20 @@ export default function Link() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState({
+    icon: "",
+    name: "",
+    description: "",
+  });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
+    if (user) {
+        console.log("success")
+    }
     if (!user) {
       setError("User not found");
       return;
@@ -68,11 +77,11 @@ export default function Link() {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch reviews");
+      throw new Error("Failed to fetch info");
     }
 
     const data = await response.json();
-    setReviews(data.reviews);
+    setInfo(data.info);
   };
 
   return (
@@ -95,6 +104,22 @@ export default function Link() {
             <p>{review.date}</p>
           </div>
         ))}
+      </div>
+      <p>get info</p>
+      <form onSubmit={test}>
+        <input
+          className="border border-solid border-black bg-white text-black"
+          type="text"
+          name="link"
+        />
+        <button type="submit">Submit</button>
+      </form>
+      <div>
+        {info.icon && (
+          <Image src={info.icon} alt="hi" width={100} height={100} />
+        )}
+        <p>{info.name}</p>
+        <p>{info.description}</p>
       </div>
     </div>
   );
