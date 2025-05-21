@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { createClient } from "@/utils/supabase/client";
-import Image from "next/image"
+import Image from "next/image";
 import { db } from "@/db";
 
 interface Review {
@@ -28,7 +28,7 @@ export default function Link() {
       data: { user },
     } = await supabase.auth.getUser();
     if (user) {
-        console.log("success")
+      console.log("success");
     }
     if (!user) {
       setError("User not found");

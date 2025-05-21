@@ -10,7 +10,7 @@ interface ExtensionInfo {
 }
 
 export async function getExtensionInfo(link: string): Promise<ExtensionInfo> {
-    const isLocal = !!process.env.CHROME_EXECUTABLE_PATH;
+  const isLocal = !!process.env.CHROME_EXECUTABLE_PATH;
   const browser = await puppeteer.launch({
     args: isLocal ? puppeteer.defaultArgs() : chromium.args,
     defaultViewport: chromium.defaultViewport,
