@@ -11,6 +11,7 @@ import {
 export const chat = pgTable("chat", {
   id: serial("id").primaryKey(),
   user_id: text("user_id").notNull(),
+  link_id: text("link_id").notNull(),
   title: text("title").notNull(),
   content: text("content").notNull(),
   created_at: timestamp("created_at").notNull().defaultNow(),

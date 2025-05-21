@@ -1,5 +1,8 @@
 "use client";
 import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { createClient } from "@/utils/supabase/server";
+import { db } from "@/db";
 
 interface Review {
   rating: number;
@@ -14,10 +17,17 @@ export default function Link() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setError("User not found");
+      return;
+    }
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
+      const linkId = uuidv4();
       const formData = new FormData(e.currentTarget);
       const link = formData.get("link") as string;
       const response = await fetch("/api/scrape", {
