@@ -1,27 +1,29 @@
-import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  integer,
+  uuid,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
-export const usersTable = pgTable("users_table", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  age: integer("age").notNull(),
-  email: text("email").notNull().unique(),
-});
 
-export const postsTable = pgTable("posts_table", {
+export const chat = pgTable("chat", {
   id: serial("id").primaryKey(),
+  user_id: text("user_id").notNull(),
   title: text("title").notNull(),
   content: text("content").notNull(),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => usersTable.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .$onUpdate(() => new Date()),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export type InsertUser = typeof usersTable.$inferInsert;
-export type SelectUser = typeof usersTable.$inferSelect;
-
-export type InsertPost = typeof postsTable.$inferInsert;
-export type SelectPost = typeof postsTable.$inferSelect;
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  chat_id: integer("chat_id")
+    .notNull()
+    .references(() => chat.id, { onDelete: "cascade" }),
+  role: text("role").notNull(),
+  content: text("content").notNull(),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at").notNull().defaultNow(),
+});

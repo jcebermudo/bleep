@@ -182,7 +182,7 @@ async function getLowRatedReviews(link: string) {
       // If it's the first attempt and no recent low-rated reviews found,
       // store the latest 15 or fewer low-rated reviews
       lowRatedReviews = pageReviews.slice(0, 15);
-      console.log("im here")
+      console.log("im here");
     }
 
     firstAttempt = false;
