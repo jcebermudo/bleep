@@ -7,7 +7,6 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 
-
 export const chat = pgTable("chat", {
   id: serial("id").primaryKey(),
   user_id: text("user_id").notNull(),

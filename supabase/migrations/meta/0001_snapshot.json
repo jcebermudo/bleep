@@ -110,12 +110,8 @@
           "name": "chat_messages_chat_id_chat_id_fk",
           "tableFrom": "chat_messages",
           "tableTo": "chat",
-          "columnsFrom": [
-            "chat_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chat_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
