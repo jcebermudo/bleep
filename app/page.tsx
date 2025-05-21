@@ -9,5 +9,5 @@ export default async function Home() {
   if (!data?.user) {
     redirect("/login");
   }
-  return <Link />;
+  return <Link userId={data.user.id}/>;
 }

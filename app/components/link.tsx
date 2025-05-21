@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 import { db } from "@/db";
 import { project } from "@/db/schema";
@@ -14,8 +13,9 @@ interface Review {
   dateObj?: Date;
 }
 
-export default function Link() {
+export default function Link({userId}: {userId: string}) {
   const router = useRouter();
+  
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,22 +27,19 @@ export default function Link() {
 
   const gotoProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      setError("User not found");
-      return;
-    }
     const linkId = uuidv4();
     const formData = new FormData(e.currentTarget);
     const link = formData.get("link") as string;
-    await db.insert(project).values({
-      project_uuid: linkId,
-      user_uuid: user.id,
-      extension_link: link,
-    });
+    const response = await fetch("/api/new_project", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ link, userId, linkId }),
+    })
+    if (!response.ok) {
+        throw new Error("Failed to create project");
+    }
     router.push(`/project/${linkId}`);
   }
 
