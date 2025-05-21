@@ -4,6 +4,7 @@ export const project = pgTable("project", {
   id: serial("id").primaryKey(),
   project_uuid: text("project_uuid").notNull(),
   user_uuid: text("user_uuid").notNull(),
+  extension_link: text("extension_link").notNull(),
   name: text("name"),
   icon: text("icon"),
   description: text("description"),
