@@ -1,3 +1,5 @@
+"use server"
+
 import chromium from "@sparticuz/chromium-min";
 import puppeteer from "puppeteer-core";
 import { setTimeout } from "node:timers/promises";

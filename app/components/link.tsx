@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 import { db } from "@/db";
 import { project } from "@/db/schema";
+import { useRouter } from "next/navigation";
 
 interface Review {
   rating: number;
@@ -14,6 +15,7 @@ interface Review {
 }
 
 export default function Link() {
+  const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +25,8 @@ export default function Link() {
     description: "",
   });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const gotoProject = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const supabase = await createClient();
     const {
       data: { user },
@@ -33,10 +36,17 @@ export default function Link() {
       return;
     }
     const linkId = uuidv4();
+    const formData = new FormData(e.currentTarget);
+    const link = formData.get("link") as string;
     await db.insert(project).values({
       project_uuid: linkId,
       user_uuid: user.id,
+      extension_link: link,
     });
+    router.push(`/project/${linkId}`);
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -88,7 +98,7 @@ export default function Link() {
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={gotoProject}>
         <input
           className="border border-solid border-black bg-white text-black"
           type="text"
