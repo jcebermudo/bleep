@@ -43,55 +43,6 @@ export default function Link({ userId }: { userId: string }) {
     router.push(`/${linkId}`);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      const formData = new FormData(e.currentTarget);
-      const link = formData.get("link") as string;
-      const response = await fetch("/api/scrape_reviews", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ link }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch reviews");
-      }
-
-      const data = await response.json();
-      setReviews(data.reviews);
-    } catch {
-      setError("Failed to fetch reviews");
-    } finally {
-      setLoading(false);
-      console.log(loading);
-      console.log(error);
-    }
-  };
-
-  const test = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const link = formData.get("link") as string;
-    const response = await fetch("/api/scrape_info", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ link }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch info");
-    }
-
-    const data = await response.json();
-    setInfo(data.info);
-  };
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -113,22 +64,6 @@ export default function Link({ userId }: { userId: string }) {
             <p>{review.date}</p>
           </div>
         ))}
-      </div>
-      <p>get info</p>
-      <form onSubmit={test}>
-        <input
-          className="border border-solid border-black bg-white text-black"
-          type="text"
-          name="link"
-        />
-        <button type="submit">Submit</button>
-      </form>
-      <div>
-        {info.icon && (
-          <Image src={info.icon} alt="hi" width={100} height={100} />
-        )}
-        <p>{info.name}</p>
-        <p>{info.description}</p>
       </div>
     </div>
   );
