@@ -19,11 +19,6 @@ export default function Link({ userId }: { userId: string }) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState({
-    icon: "",
-    name: "",
-    description: "",
-  });
 
   const gotoProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
