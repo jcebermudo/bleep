@@ -5,13 +5,9 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { project, reviews } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import { getExtensionInfo } from "@/scraper/extensionInfo";
+import { getLowRatedReviews } from "@/scraper/scrape";
 
-interface Review {
-  rating: number;
-  text: string;
-  date: string;
-  daysAgoSinceRetrieval: number;
-}
 
 export default async function Page({
   params,
@@ -38,26 +34,15 @@ export default async function Page({
       and(eq(project.project_uuid, slug), eq(project.user_uuid, data.user.id))
     );
   const link = confirmation[0].link as string;
-  let officialInfo;
-  let officialReviews;
+  let officialInfo
+  let officialReviews
   if (
     !confirmation[0].name &&
     !confirmation[0].icon &&
     !confirmation[0].description
   ) {
-    const responseInfo = await fetch("http://localhost:3000/api/scrape_info", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ link }),
-    });
-
-    if (!responseInfo.ok) {
-      throw new Error("Failed to fetch info");
-    }
-    const dataInfo = await responseInfo.json();
-    officialInfo = dataInfo.info;
+    const info = await getExtensionInfo(link);
+    officialInfo = info;
     await db
       .update(project)
       .set({
@@ -68,21 +53,10 @@ export default async function Page({
       .where(
         and(eq(project.project_uuid, slug), eq(project.user_uuid, data.user.id))
       );
-    const responseReviews = await fetch("http://localhost:3000/api/scrape_reviews", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ link }),
-    });
-
-    if (!responseReviews.ok) {
-      throw new Error("Failed to fetch reviews");
-    }
-    const dataReviews = await responseReviews.json();
-    officialReviews = dataReviews.reviews;
+    const getreviews = await getLowRatedReviews(link);
+    officialReviews = getreviews;
     await db.insert(reviews).values(
-      officialReviews.map((review: Review) => ({
+      officialReviews.map((review) => ({
         project_id: confirmation[0].id,
         rating: review.rating,
         text: review.text,
@@ -118,7 +92,7 @@ export default async function Page({
             <p>{officialInfo.description}</p>
           </div>
           <div>
-            {officialReviews.map((review: Review, index: number) => (
+            {officialReviews.map((review, index: number) => (
               <div key={index}>
                 <p>{review.text}</p>
                 <p>{review.rating}</p>
