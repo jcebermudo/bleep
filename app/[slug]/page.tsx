@@ -7,63 +7,55 @@ import { project, reviews } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { getExtensionInfo } from "@/scraper/extensionInfo";
 import { getLowRatedReviews } from "@/scraper/scrape";
-
+import { newProject } from "@/scraper/newproject";
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ process: string; link: string }>;
 }) {
   let loading = true;
   const { slug } = await params;
+  const { process, link } = await searchParams;
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
   if (!data?.user) {
     redirect("/login");
   }
+  let officialInfo;
+  let officialReviews;
   const confirmation = await db
-    .select({
-      id: project.id,
-      name: project.name,
-      icon: project.icon,
-      description: project.description,
-      link: project.extension_link,
-    })
+    .select()
     .from(project)
     .where(
-      and(eq(project.project_uuid, slug), eq(project.user_uuid, data.user.id))
+      and(eq(project.project_uuid, slug), eq(project.user_uuid, data.user.id)),
     );
-  const link = confirmation[0].link as string;
-  let officialInfo
-  let officialReviews
-  if (
-    !confirmation[0].name &&
-    !confirmation[0].icon &&
-    !confirmation[0].description
-  ) {
-    const info = await getExtensionInfo(link);
-    officialInfo = info;
-    await db
-      .update(project)
-      .set({
-        name: officialInfo.name,
-        icon: officialInfo.icon,
-        description: officialInfo.description,
-      })
-      .where(
-        and(eq(project.project_uuid, slug), eq(project.user_uuid, data.user.id))
+  if (!confirmation.length) {
+    if (process === "true") {
+      const info = await getExtensionInfo(link);
+      const newproject = await newProject(
+        slug,
+        data.user.id,
+        link,
+        info.name,
+        info.icon,
+        info.description,
       );
-    const getreviews = await getLowRatedReviews(link);
-    officialReviews = getreviews;
-    await db.insert(reviews).values(
-      officialReviews.map((review) => ({
-        project_id: confirmation[0].id,
-        rating: review.rating,
-        text: review.text,
-        date: review.date,
-        days_ago_since_retrieval: review.daysAgoSinceRetrieval,
-      }))
-    );
+      officialInfo = info;
+      const extractedReviews = await getLowRatedReviews(link);
+      officialReviews = extractedReviews;
+      await db.insert(reviews).values(
+        extractedReviews.map((review) => ({
+          project_id: newproject,
+          rating: review.rating,
+          text: review.text,
+          date: review.date,
+          days_ago_since_retrieval: review.daysAgoSinceRetrieval,
+        })),
+      );
+    }
     loading = false;
   } else {
     const dbReviews = await db
@@ -74,7 +66,10 @@ export default async function Page({
       .select()
       .from(project)
       .where(
-        and(eq(project.project_uuid, slug), eq(project.user_uuid, data.user.id))
+        and(
+          eq(project.project_uuid, slug),
+          eq(project.user_uuid, data.user.id),
+        ),
       );
     officialInfo = dbInfo[0];
     officialReviews = dbReviews;
@@ -88,11 +83,11 @@ export default async function Page({
       ) : (
         <>
           <div>
-            <h1>{officialInfo.name}</h1>
-            <p>{officialInfo.description}</p>
+            <h1>{officialInfo?.name}</h1>
+            <p>{officialInfo?.description}</p>
           </div>
           <div>
-            {officialReviews.map((review, index: number) => (
+            {officialReviews?.map((review, index: number) => (
               <div key={index}>
                 <p>{review.text}</p>
                 <p>{review.rating}</p>
