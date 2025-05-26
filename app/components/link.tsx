@@ -1,10 +1,6 @@
 "use client";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import Image from "next/image";
-import { db } from "@/db";
-import { project } from "@/db/schema";
-import { useRouter } from "next/navigation";
 
 interface Review {
   rating: number;
@@ -14,7 +10,6 @@ interface Review {
 }
 
 export default function Link({ userId }: { userId: string }) {
-  const router = useRouter();
 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(false);
@@ -30,12 +25,12 @@ export default function Link({ userId }: { userId: string }) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ link, userId, linkId }),
+      body: JSON.stringify({ }),
     });
     if (!response.ok) {
       throw new Error("Failed to create project");
     }
-    router.push(`/${linkId}`);
+    await response.json();
   };
 
 
@@ -51,15 +46,6 @@ export default function Link({ userId }: { userId: string }) {
       </form>
       {loading && <p>Loading...</p>}
       {error && <p>{error}</p>}
-      <div className="gap-16 flex flex-col">
-        {reviews.map((review, index) => (
-          <div key={index}>
-            <p>{review.text}</p>
-            <p>{review.rating}</p>
-            <p>{review.date}</p>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
