@@ -21,7 +21,9 @@ export default function Link({ userId }: { userId: string }) {
     const linkId = uuidv4();
     const formData = new FormData(e.currentTarget);
     const link = formData.get("link") as string;
-    await router.push(`/${linkId}?process=true&link=${encodeURIComponent(link)}`);
+    await router.push(
+      `/${linkId}?process=true&link=${encodeURIComponent(link)}`,
+    );
   };
 
   return (

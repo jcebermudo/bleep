@@ -21,6 +21,9 @@ export async function newProject(
     description: description,
     actual_date_of_creation: date,
   });
-  const project_id = await db.select().from(project).where(eq(project.project_uuid, linkId));
+  const project_id = await db
+    .select()
+    .from(project)
+    .where(eq(project.project_uuid, linkId));
   return project_id[0].id;
 }
