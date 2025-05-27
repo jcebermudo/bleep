@@ -8,6 +8,7 @@ import { and, eq } from "drizzle-orm";
 import { getExtensionInfo } from "@/scraper/extensionInfo";
 import { getLowRatedReviews } from "@/scraper/scrape";
 import { newProject } from "@/scraper/newproject";
+import { Suspense } from "react";
 
 export default async function Page({
   params,
@@ -77,10 +78,7 @@ export default async function Page({
   }
 
   return (
-    <>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
+    <Suspense fallback={<p>Loading...</p>}>
         <>
           <div>
             <h1>{officialInfo?.name}</h1>
@@ -96,7 +94,6 @@ export default async function Page({
             ))}
           </div>
         </>
-      )}
-    </>
+    </Suspense>
   );
 }
