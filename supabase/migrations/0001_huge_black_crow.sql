@@ -1,1 +1,0 @@
-ALTER TABLE "project" ADD COLUMN "extension_link" text NOT NULL;

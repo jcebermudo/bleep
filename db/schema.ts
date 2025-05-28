@@ -26,9 +26,19 @@ export const reviews = pgTable("reviews", {
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const messages = pgTable("messages", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  role: text("role").notNull(), // 'user' or 'assistant'
-  content: text("content").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+export const chats = pgTable('chats', {
+  id: text('id').primaryKey(),
+  project_id: integer("project_id").notNull().references(() => project.id, {onDelete: "cascade"}),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+export const messages = pgTable('messages', {
+  id: text('id').primaryKey(),
+  chatId: text('chat_id').notNull().references(() => chats.id, { onDelete: 'cascade' }),
+  role: text('role').notNull(), // 'user' | 'assistant'
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+
