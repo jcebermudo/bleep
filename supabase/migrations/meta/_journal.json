@@ -22,6 +22,20 @@
       "when": 1747844279719,
       "tag": "0002_marvelous_mongoose",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1748365165058,
+      "tag": "0003_certain_forge",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1748365275281,
+      "tag": "0004_true_ender_wiggin",
+      "breakpoints": true
     }
   ]
 }
