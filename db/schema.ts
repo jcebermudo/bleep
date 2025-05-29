@@ -28,9 +28,6 @@ export const reviews = pgTable("reviews", {
 
 export const analysis = pgTable("analysis", {
   id: serial("id").primaryKey(),
-  project_id: integer("project_id")
-    .notNull()
-    .references(() => project.id, { onDelete: "cascade" }),
   analysis: text("analysis"),
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
