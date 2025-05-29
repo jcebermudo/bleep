@@ -15,13 +15,19 @@ export default function Chat({
     experimental_prepareRequestBody({ messages, id }) {
       return { message: messages[messages.length - 1], id };
     },
+    
   });
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
-
-        
       {messages.map((m) => (
         <div key={m.id}>
+          {/* Access reasoning from parts instead of reasoning property */}
+          {m.parts
+            ?.filter((part) => part.type === "reasoning")
+            .map((reasoningPart, index) => (
+              <p key={index}>{reasoningPart.reasoning}</p>
+            ))}
+
           {m.role === "user" ? "User: " : "AI: "}
           {m.content}
         </div>

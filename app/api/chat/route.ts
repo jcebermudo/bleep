@@ -40,5 +40,7 @@ export async function POST(req: Request) {
 
   result.consumeStream()
 
-  return result.toDataStreamResponse();
+  return result.toDataStreamResponse({
+    sendReasoning: true,
+  });
 }
