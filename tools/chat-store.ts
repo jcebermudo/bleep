@@ -20,7 +20,7 @@ export async function loadChat(id: string): Promise<Message[]> {
     id: msg.id,
     role: msg.role as 'user' | 'assistant',
     content: msg.content,
-    reasoning: msg.parts?.filter((part) => part.type === "reasoning").map((part) => part.reasoning),
+    reasoning: msg.reasoning,
     createdAt: msg.createdAt,
   }));
 }
@@ -38,8 +38,9 @@ export async function saveChat({
         chatId: id,
         role: msg.role,
         content: msg.content,
+        reasoning: msg.parts?.find(part => part.type === "reasoning")?.reasoning,
         // Ensure createdAt is a Date object
-      createdAt: msg.createdAt ? new Date(msg.createdAt) : new Date(),
+        createdAt: msg.createdAt ? new Date(msg.createdAt) : new Date(),
       }))
     );
 }
