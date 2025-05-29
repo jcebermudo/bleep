@@ -1,4 +1,4 @@
-import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { integer, pgTable, serial, text, timestamp, json } from "drizzle-orm/pg-core";
 
 export const project = pgTable("project", {
   id: serial("id").primaryKey(),
@@ -37,7 +37,7 @@ export const messages = pgTable('messages', {
   chatId: text('chat_id').notNull().references(() => chats.id, { onDelete: 'cascade' }),
   role: text('role').notNull(), // 'user' | 'assistant'
   content: text('content').notNull(),
-  reasoning: text('reasoning'),
+  parts: json('parts').default([]),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
