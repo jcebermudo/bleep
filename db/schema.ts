@@ -28,7 +28,6 @@ export const reviews = pgTable("reviews", {
 
 export const chats = pgTable('chats', {
   id: text('id').primaryKey(),
-  project_id: integer("project_id").notNull().references(() => project.id, {onDelete: "cascade"}),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

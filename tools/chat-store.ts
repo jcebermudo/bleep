@@ -1,15 +1,15 @@
 import { generateId, type Message } from "ai"
 import { db } from "@/db";
 import { chats, messages as messagesTable } from '@/db/schema';
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 export async function createChat(): Promise<string> {
   const id = generateId();
-  await db.insert(chats).values({ id, project_id: projectId, createdAt: new Date() });
+  await db.insert(chats).values({ id, createdAt: new Date() });
   return id;
 }
 
-export async function loadChatDB(id: string): Promise<Message[]> {
+export async function loadChat(id: string): Promise<Message[]> {
   const messages = await db
     .select()
     .from(messagesTable)
@@ -24,26 +24,21 @@ export async function loadChatDB(id: string): Promise<Message[]> {
   }));
 }
 
-export async function saveChatDB({
+export async function saveChat({
   id,
   messages,
 }: {
   id: string;
   messages: Message[];
 }): Promise<void> {
-  // Delete existing messages for this chat
-  await db.delete(messagesTable).where(eq(messagesTable.chatId, id));
-  
-  // Insert new messages
-  if (messages.length > 0) {
     await db.insert(messagesTable).values(
       messages.map(msg => ({
         id: msg.id,
         chatId: id,
         role: msg.role,
         content: msg.content,
-        createdAt: msg.createdAt || new Date(),
+        // Ensure createdAt is a Date object
+      createdAt: msg.createdAt ? new Date(msg.createdAt) : new Date(),
       }))
     );
-  }
 }
