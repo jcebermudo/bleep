@@ -43,6 +43,27 @@
       "when": 1748509930119,
       "tag": "0005_light_chronomancer",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1748526182595,
+      "tag": "0006_colossal_metal_master",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1748526234333,
+      "tag": "0007_colorful_shatterstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1748526307549,
+      "tag": "0008_yellow_masque",
+      "breakpoints": true
     }
   ]
 }
