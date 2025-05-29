@@ -9,7 +9,7 @@ const togetherai = createTogetherAI({
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { message } = await req.json();
+  const { info, projectid } = await req.json();
 
   const enhancedModel = wrapLanguageModel({
     model: togetherai("deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"),
@@ -65,7 +65,7 @@ Use bullet points, numbered lists, and headings for clarity.
 End with a brief summary of the most promising business idea and next recommended steps.
 
 Stay focused, precise, and data‑driven in every response.`,
-    messages,
+    messages: info,
     async onFinish({ response }) {
       
       // Save the conversation to the database

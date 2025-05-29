@@ -31,7 +31,7 @@ export const analysis = pgTable("analysis", {
   project_id: integer("project_id")
     .notNull()
     .references(() => project.id, { onDelete: "cascade" }),
-  analysis: text("analysis").notNull(),
+  analysis: text("analysis"),
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
   
