@@ -36,6 +36,13 @@
       "when": 1748507894873,
       "tag": "0004_lovely_pretty_boy",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1748509930119,
+      "tag": "0005_light_chronomancer",
+      "breakpoints": true
     }
   ]
 }
