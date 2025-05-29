@@ -15,7 +15,7 @@ export async function POST(request: Request) {
         text: review.text,
         date: review.date,
         days_ago_since_retrieval: review.daysAgoSinceRetrieval,
-      }))
+      })),
     );
     return NextResponse.json({ fetchReviews });
   } catch {

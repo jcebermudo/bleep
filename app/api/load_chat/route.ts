@@ -10,10 +10,7 @@ export async function POST(req: Request) {
     const chat = await loadChat(chatId);
     return NextResponse.json({ chat });
   } catch (error) {
-    console.error('Error loading chat:', error);
-    return NextResponse.json(
-      { error: "Failed to load chat" },
-      { status: 500 }
-    );
+    console.error("Error loading chat:", error);
+    return NextResponse.json({ error: "Failed to load chat" }, { status: 500 });
   }
 }

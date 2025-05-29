@@ -8,15 +8,17 @@ export async function POST(req: Request) {
   try {
     console.log("it works");
     const { projectId } = await req.json();
-    const chat = await db
-      .select()
+    const analysis = await db
+      .select({
+        analysis: chats.analysis,
+      })
       .from(chats)
       .where(eq(chats.project_id, projectId));
-    return NextResponse.json({ chat });
+    return NextResponse.json({ analysis: analysis[0].analysis });
   } catch (error) {
-    console.error("Error creating chat:", error);
+    console.error("Error creating analysis:", error);
     return NextResponse.json(
-      { error: "Failed to create chat" },
+      { error: "Failed to create analysis" },
       { status: 500 },
     );
   }

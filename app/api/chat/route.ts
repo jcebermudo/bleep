@@ -1,9 +1,15 @@
-import { createTogetherAI } from '@ai-sdk/togetherai';
-import { appendClientMessage, appendResponseMessages, streamText, extractReasoningMiddleware, wrapLanguageModel } from "ai"
+import { createTogetherAI } from "@ai-sdk/togetherai";
+import {
+  appendClientMessage,
+  appendResponseMessages,
+  streamText,
+  extractReasoningMiddleware,
+  wrapLanguageModel,
+} from "ai";
 import { loadChat, saveChat } from "@/tools/chat-store";
 
 const togetherai = createTogetherAI({
-  apiKey: process.env.TOGETHER_AI_API_KEY ?? '',
+  apiKey: process.env.TOGETHER_AI_API_KEY ?? "",
 });
 
 export const maxDuration = 30;
@@ -20,7 +26,7 @@ export async function POST(req: Request) {
 
   const enhancedModel = wrapLanguageModel({
     model: togetherai("deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"),
-    middleware: extractReasoningMiddleware({ tagName: 'think' }),
+    middleware: extractReasoningMiddleware({ tagName: "think" }),
   });
 
   const result = streamText({
@@ -74,7 +80,6 @@ End with a brief summary of the most promising business idea and next recommende
 Stay focused, precise, and data‑driven in every response.`,
     messages,
     async onFinish({ response }) {
-      
       // Save the conversation to the database
       await saveChat({
         id,
@@ -82,11 +87,11 @@ Stay focused, precise, and data‑driven in every response.`,
           messages: [message],
           responseMessages: response.messages,
         }),
-      })
+      });
     },
   });
 
-  result.consumeStream()
+  result.consumeStream();
 
   return result.toDataStreamResponse({
     sendReasoning: true,

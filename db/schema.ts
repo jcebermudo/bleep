@@ -1,4 +1,11 @@
-import { integer, pgTable, serial, text, timestamp, json } from "drizzle-orm/pg-core";
+import {
+  integer,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  json,
+} from "drizzle-orm/pg-core";
 
 export const project = pgTable("project", {
   id: serial("id").primaryKey(),
@@ -26,23 +33,23 @@ export const reviews = pgTable("reviews", {
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const chats = pgTable('chats', {
-  id: text('id').primaryKey(),
+export const chats = pgTable("chats", {
+  id: text("id").primaryKey(),
   project_id: integer("project_id")
     .notNull()
     .references(() => project.id, { onDelete: "cascade" }),
   analysis: text("analysis"),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const messages = pgTable('messages', {
-  id: text('id').primaryKey(),
-  chatId: text('chat_id').notNull().references(() => chats.id, { onDelete: 'cascade' }),
-  role: text('role').notNull(), // 'user' | 'assistant'
-  content: text('content').notNull(),
-  parts: json('parts').default([]),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+export const messages = pgTable("messages", {
+  id: text("id").primaryKey(),
+  chatId: text("chat_id")
+    .notNull()
+    .references(() => chats.id, { onDelete: "cascade" }),
+  role: text("role").notNull(), // 'user' | 'assistant'
+  content: text("content").notNull(),
+  parts: json("parts").default([]),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
-
-

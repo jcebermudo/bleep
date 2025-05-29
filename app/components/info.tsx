@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Message } from "ai";
 import Chat from "./chat";
+import { useCompletion } from "@ai-sdk/react";
+import { p } from "motion/react-client";
 
 interface Review {
   id: number;
@@ -37,6 +39,9 @@ export default function Info({
   userId: string;
   link?: string;
 }) {
+  const { completion, complete } = useCompletion({
+    api: "/api/completion",
+  });
   const [info, setInfo] = useState<Info>({
     id: 0,
     project_uuid: "",
@@ -51,7 +56,8 @@ export default function Info({
   });
   const [review, setReviews] = useState<Review[]>([]);
   const [infoloading, setInfoLoading] = useState(true);
-  const [infoConfirmation, setInfoConfirmation] = useState();
+  const [analysis, setAnalysis] = useState();
+  const [existingAnalysis, setExistingAnalysis] = useState(true);
   const [chatId, setChatId] = useState();
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatLoading, setChatLoading] = useState(true);
@@ -71,8 +77,8 @@ export default function Info({
           userId: userId,
         }),
       });
+      let projectId;
       const confirmationData = await confirmation.json();
-      setInfoConfirmation(confirmationData.confirmation);
       if (!confirmationData.confirmation.length) {
         const info = await fetch("/api/scrape_info", {
           method: "POST",
@@ -108,6 +114,7 @@ export default function Info({
           }),
         });
         const projectData = await project.json();
+        projectId = projectData.info;
         const reviews = await fetch("/api/scrape_reviews", {
           method: "POST",
           headers: {
@@ -121,7 +128,6 @@ export default function Info({
         const reviewsData = await reviews.json();
         setReviews(reviewsData.fetchReviews);
         setInfoLoading(false);
-        return;
       } else {
         const info = await fetch("/api/get_info", {
           method: "POST",
@@ -134,6 +140,7 @@ export default function Info({
           }),
         });
         const infoData = await info.json();
+        projectId = infoData.project.id;
         setInfo({
           ...infoData.project,
           name: infoData.project?.name || "",
@@ -147,25 +154,18 @@ export default function Info({
         setReviews(infoData.reviews);
         setInfoLoading(false);
       }
-    };
-    fetchInfo();
-  }, [slug, userId, link]);
-
-  useEffect(() => {
-    if (hasChatRun.current) return;
-    hasChatRun.current = true;
-    if (!infoloading) {
-      const fetchChat = async () => {
-        const chat = await fetch("/api/get_chat", {
+      let varchatId;
+      const chat = await fetch("/api/get_chat", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            projectId: info.id,
+            projectId: projectId,
           }),
         });
         const chatData = await chat.json();
+        varchatId = chatData.chat[0].id;
         if (!chatData.chat.length) {
           const newchat = await fetch("/api/new_chat", {
             method: "POST",
@@ -173,42 +173,64 @@ export default function Info({
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              projectId: info.id,
+              projectId: projectId,
             }),
           });
           const newchatData = await newchat.json();
-          setChatId(newchatData.chatId);
+          varchatId = newchatData.chatId;
+          setChatId(varchatId);
           const getmessages = await fetch("/api/get_messages", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              chatId: chatData.chat[0].id,
+              chatId: varchatId,
             }),
           });
           const getmessagesData = await getmessages.json();
           setMessages(getmessagesData.messages);
           setChatLoading(false);
         } else {
-          setChatId(chatData.chat[0].id);
           const getmessages = await fetch("/api/get_messages", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              chatId: chatData.chat[0].id,
+              chatId: varchatId,
             }),
           });
           const getmessagesData = await getmessages.json();
           setMessages(getmessagesData.messages);
+          setChatId(varchatId);
           setChatLoading(false);
         }
-      };
-      fetchChat();
-    }
-  }, [infoloading]);
+
+        const getanalysis = await fetch("/api/get_analysis", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            projectId: projectId,
+          }),
+        });
+        const getanalysisData = await getanalysis.json();
+        setAnalysis(getanalysisData.analysis);
+        setExistingAnalysis(true);
+
+        if (!getanalysisData.analysis.length) {
+          complete(
+            `generate an analysis from this: ${info.name} ${
+              info.description
+            } ${review.map((item) => item.text)}`,
+          );
+          setExistingAnalysis(false);
+        }
+    };
+    fetchInfo();
+  }, [slug, userId, link]);
   return (
     <div>
       {infoloading ? (
@@ -230,12 +252,13 @@ export default function Info({
           )}
         </>
       )}
+      <p></p>
+      {existingAnalysis ? <p>{completion}</p> : <p>{analysis}</p>}
       {chatLoading ? (
         <p>Loading chat...</p>
       ) : (
         <Chat id={chatId} initialMessages={messages} />
       )}
-
     </div>
   );
 }

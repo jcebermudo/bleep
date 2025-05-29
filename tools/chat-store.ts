@@ -1,6 +1,6 @@
-import { generateId, type Message } from "ai"
+import { generateId, type Message } from "ai";
 import { db } from "@/db";
-import { chats, messages as messagesTable } from '@/db/schema';
+import { chats, messages as messagesTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function createChat(project_id: number): Promise<string> {
@@ -15,12 +15,12 @@ export async function loadChat(id: string): Promise<Message[]> {
     .from(messagesTable)
     .where(eq(messagesTable.chatId, id))
     .orderBy(messagesTable.createdAt);
-  
-  return messages.map(msg => ({
+
+  return messages.map((msg) => ({
     id: msg.id,
-    role: msg.role as 'user' | 'assistant',
+    role: msg.role as "user" | "assistant",
     content: msg.content,
-    parts: msg.parts as Message['parts'],
+    parts: msg.parts as Message["parts"],
     createdAt: msg.createdAt,
   }));
 }
@@ -32,15 +32,15 @@ export async function saveChat({
   id: string;
   messages: Message[];
 }): Promise<void> {
-    await db.insert(messagesTable).values(
-      messages.map(msg => ({
-        id: msg.id,
-        chatId: id,
-        role: msg.role,
-        content: msg.content,
-        parts: msg.parts,
-        // Ensure createdAt is a Date object
-        createdAt: msg.createdAt ? new Date(msg.createdAt) : new Date(),
-      }))
-    );
+  await db.insert(messagesTable).values(
+    messages.map((msg) => ({
+      id: msg.id,
+      chatId: id,
+      role: msg.role,
+      content: msg.content,
+      parts: msg.parts,
+      // Ensure createdAt is a Date object
+      createdAt: msg.createdAt ? new Date(msg.createdAt) : new Date(),
+    })),
+  );
 }

@@ -11,10 +11,10 @@ export async function GET() {
       .orderBy(messages.createdAt);
     return NextResponse.json(allMessages);
   } catch (error) {
-    console.error('Error fetching messages:', error);
+    console.error("Error fetching messages:", error);
     return NextResponse.json(
       { error: "Failed to fetch messages" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -15,7 +15,6 @@ export default function Chat({
     experimental_prepareRequestBody({ messages, id }) {
       return { message: messages[messages.length - 1], id };
     },
-    
   });
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">

@@ -10,10 +10,10 @@ export async function POST(req: Request) {
     const chatId = await createChat(projectId);
     return NextResponse.json({ chatId });
   } catch (error) {
-    console.error('Error creating chat:', error);
+    console.error("Error creating chat:", error);
     return NextResponse.json(
       { error: "Failed to create chat" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
