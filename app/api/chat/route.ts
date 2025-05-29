@@ -26,7 +26,8 @@ export async function POST(req: Request) {
   const result = streamText({
     model: enhancedModel,
     messages,
-    async onFinish({ response }) {
+    async onFinish({ response, reasoning }) {
+      
       // Save the conversation to the database
       await saveChat({
         id,
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
           messages: [message],
           responseMessages: response.messages,
         }),
-        
+        reasoning: reasoning || undefined
       })
     },
   });

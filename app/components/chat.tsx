@@ -27,7 +27,6 @@ export default function Chat({
             .map((reasoningPart, index) => (
               <p key={index}>{reasoningPart.reasoning}</p>
             ))}
-
           {m.role === "user" ? "User: " : "AI: "}
           {m.content}
         </div>

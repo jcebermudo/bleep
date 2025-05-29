@@ -20,7 +20,7 @@ export async function loadChat(id: string): Promise<Message[]> {
     id: msg.id,
     role: msg.role as 'user' | 'assistant',
     content: msg.content,
-    reasoning: msg.reasoning,
+    reasoning: msg.reasoning || undefined,
     createdAt: msg.createdAt,
   }));
 }
@@ -28,9 +28,11 @@ export async function loadChat(id: string): Promise<Message[]> {
 export async function saveChat({
   id,
   messages,
+  reasoning,
 }: {
   id: string;
   messages: Message[];
+  reasoning?: string;
 }): Promise<void> {
     await db.insert(messagesTable).values(
       messages.map(msg => ({
@@ -38,7 +40,7 @@ export async function saveChat({
         chatId: id,
         role: msg.role,
         content: msg.content,
-        reasoning: msg.parts?.find(part => part.type === "reasoning")?.reasoning,
+        reasoning: reasoning,
         // Ensure createdAt is a Date object
         createdAt: msg.createdAt ? new Date(msg.createdAt) : new Date(),
       }))
