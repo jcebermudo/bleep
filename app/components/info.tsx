@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { Message } from "ai";
+import Chat from "./chat";
 
 interface Review {
   id: number;
@@ -48,12 +50,16 @@ export default function Info({
     updated_at: "",
   });
   const [review, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [confirmation, setConfirmation] = useState();
-  const hasRun = useRef(false);
+  const [infoloading, setInfoLoading] = useState(true);
+  const [infoConfirmation, setInfoConfirmation] = useState();
+  const [chatId, setChatId] = useState();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [chatLoading, setChatLoading] = useState(true);
+  const hasInfoRun = useRef(false);
+  const hasChatRun = useRef(false);
   useEffect(() => {
-    if (hasRun.current) return;
-    hasRun.current = true;
+    if (hasInfoRun.current) return;
+    hasInfoRun.current = true;
     const fetchInfo = async () => {
       const confirmation = await fetch("/api/confrimation", {
         method: "POST",
@@ -66,7 +72,7 @@ export default function Info({
         }),
       });
       const confirmationData = await confirmation.json();
-      setConfirmation(confirmationData.confirmation);
+      setInfoConfirmation(confirmationData.confirmation);
       if (!confirmationData.confirmation.length) {
         const info = await fetch("/api/scrape_info", {
           method: "POST",
@@ -114,7 +120,7 @@ export default function Info({
         });
         const reviewsData = await reviews.json();
         setReviews(reviewsData.fetchReviews);
-        setLoading(false);
+        setInfoLoading(false);
         return;
       } else {
         const info = await fetch("/api/get_info", {
@@ -139,14 +145,73 @@ export default function Info({
           updated_at: infoData.project?.updated_at,
         });
         setReviews(infoData.reviews);
-        setLoading(false);
+        setInfoLoading(false);
       }
     };
     fetchInfo();
   }, [slug, userId, link]);
+
+  useEffect(() => {
+    if (hasChatRun.current) return;
+    hasChatRun.current = true;
+    if (!infoloading) {
+      const fetchChat = async () => {
+        const chat = await fetch("/api/get_chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            projectId: info.id,
+          }),
+        });
+        const chatData = await chat.json();
+        if (!chatData.chat.length) {
+          const newchat = await fetch("/api/new_chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              projectId: info.id,
+            }),
+          });
+          const newchatData = await newchat.json();
+          setChatId(newchatData.chatId);
+          const getmessages = await fetch("/api/get_messages", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              chatId: chatData.chat[0].id,
+            }),
+          });
+          const getmessagesData = await getmessages.json();
+          setMessages(getmessagesData.messages);
+          setChatLoading(false);
+        } else {
+          setChatId(chatData.chat[0].id);
+          const getmessages = await fetch("/api/get_messages", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              chatId: chatData.chat[0].id,
+            }),
+          });
+          const getmessagesData = await getmessages.json();
+          setMessages(getmessagesData.messages);
+          setChatLoading(false);
+        }
+      };
+      fetchChat();
+    }
+  }, [infoloading]);
   return (
     <div>
-      {loading ? (
+      {infoloading ? (
         <p>Loading...</p>
       ) : (
         <>
@@ -165,6 +230,12 @@ export default function Info({
           )}
         </>
       )}
+      {chatLoading ? (
+        <p>Loading chat...</p>
+      ) : (
+        <Chat id={chatId} initialMessages={messages} />
+      )}
+
     </div>
   );
 }

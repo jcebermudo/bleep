@@ -3,9 +3,9 @@ import { db } from "@/db";
 import { chats, messages as messagesTable } from '@/db/schema';
 import { eq } from "drizzle-orm";
 
-export async function createChat(): Promise<string> {
+export async function createChat(project_id: number): Promise<string> {
   const id = generateId();
-  await db.insert(chats).values({ id, createdAt: new Date() });
+  await db.insert(chats).values({ id, project_id, createdAt: new Date() });
   return id;
 }
 
