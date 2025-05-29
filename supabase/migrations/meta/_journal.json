@@ -64,6 +64,13 @@
       "when": 1748526307549,
       "tag": "0008_yellow_masque",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1748530681874,
+      "tag": "0009_outgoing_black_widow",
+      "breakpoints": true
     }
   ]
 }
