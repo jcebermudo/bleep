@@ -20,6 +20,7 @@ export async function loadChat(id: string): Promise<Message[]> {
     id: msg.id,
     role: msg.role as 'user' | 'assistant',
     content: msg.content,
+    reasoning: msg.parts?.filter((part) => part.type === "reasoning").map((part) => part.reasoning),
     createdAt: msg.createdAt,
   }));
 }

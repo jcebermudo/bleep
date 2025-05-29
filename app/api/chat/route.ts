@@ -34,6 +34,7 @@ export async function POST(req: Request) {
           messages: [message],
           responseMessages: response.messages,
         }),
+        
       })
     },
   });
