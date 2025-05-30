@@ -58,7 +58,7 @@ export default function MainUI({
   const [analysis, setAnalysis] = useState();
   const [chatId, setChatId] = useState<string>();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [existingAnalysis, setExistingAnalysis] = useState(true);
+  const [existingAnalysis, setExistingAnalysis] = useState(false);
   const [infoloading, setInfoLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(true);
   const hasRun = useRef(false);
@@ -191,7 +191,17 @@ export default function MainUI({
           setMessages(getmessagesData.chatmessages);
           setChatLoading(false);
         } else {
-          varchatId = chatData.chat.id;
+          const existingchat = await fetch("/api/get_chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              projectId: projectId,
+            }),
+          });
+          const existingchatData = await existingchat.json();
+          varchatId = existingchatData.chat[0].id;
           setChatId(varchatId);
           const getmessages = await fetch("/api/get_messages", {
             method: "POST",
@@ -218,9 +228,13 @@ export default function MainUI({
         });
         const getanalysisData = await getanalysis.json();
         setAnalysis(getanalysisData.analysis);
-        setExistingAnalysis(true);
 
-        if (!getanalysisData.analysis) {
+
+        if (getanalysisData.analysis !== null) {
+          setExistingAnalysis(true);
+        }
+
+        if (getanalysisData.analysis === null) {
           complete(`generate an analysis from this: ${info.name} ${
             info.description
           } ${review.map((item) => item.text).join(" ")}`,
@@ -235,33 +249,36 @@ export default function MainUI({
     fetchInfo();
   }, [slug, userId, link]);
   return (
-    <div>
-      {infoloading ? (
-        <p>Loading...</p>
-      ) : (
-        <>
-          {info && <div>{info.name}</div>}
-          {info && <p>{info.description}</p>}
-          {review && review.length > 0 ? (
-            review.map((item, index) => (
-              <div key={index}>
-                <p>{item.text}</p>
-                <p>{item.rating}</p>
-                <p>{item.date}</p>
-              </div>
-            ))
-          ) : (
-            <p>No reviews available</p>
-          )}
-        </>
-      )}
-      <p></p>
-      {existingAnalysis ? <p>{analysis}</p> : <p>{completion}</p>}
-      {chatLoading ? (
-        <p>Loading chat...</p>
-      ) : (
-        <Chat id={chatId} initialMessages={messages} />
-      )}
+    <div className="flex flex-row gap-4">
+      <div>
+        {existingAnalysis ? <p>{analysis}</p> : <p>{completion}</p>}
+        {chatLoading ? (
+          <p>Loading chat...</p>
+        ) : (
+          <Chat id={chatId} initialMessages={messages} />
+        )}
+      </div>
+      <div>
+        {infoloading ? (
+          <p>Loading...</p>
+        ) : (
+          <>
+            {info && <div>{info.name}</div>}
+            {info && <p>{info.description}</p>}
+            {review && review.length > 0 ? (
+              review.map((item, index) => (
+                <div key={index}>
+                  <p>{item.text}</p>
+                  <p>{item.rating}</p>
+                  <p>{item.date}</p>
+                </div>
+              ))
+            ) : (
+              <p>No reviews available</p>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
