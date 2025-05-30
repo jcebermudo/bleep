@@ -56,7 +56,7 @@ export default function MainUI({
   });
   const [review, setReviews] = useState<Review[]>([]);
   const [analysis, setAnalysis] = useState();
-  const [chatId, setChatId] = useState();
+  const [chatId, setChatId] = useState<string>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [existingAnalysis, setExistingAnalysis] = useState(true);
   const [infoloading, setInfoLoading] = useState(true);
@@ -66,6 +66,8 @@ export default function MainUI({
     if (hasRun.current) return;
     hasRun.current = true;
     const fetchInfo = async () => {
+      let projectId: number;
+      let varchatId: string;
       const confirmation = await fetch("/api/confrimation", {
         method: "POST",
         headers: {
@@ -76,7 +78,6 @@ export default function MainUI({
           userId: userId,
         }),
       });
-      let projectId;
       const confirmationData = await confirmation.json();
       if (!confirmationData.confirmation.length) {
         const info = await fetch("/api/scrape_info", {
@@ -121,7 +122,7 @@ export default function MainUI({
           },
           body: JSON.stringify({
             link: link,
-            projectId: projectData.info,
+            projectId: projectId,
           }),
         });
         const reviewsData = await reviews.json();
@@ -153,7 +154,7 @@ export default function MainUI({
         setReviews(infoData.reviews);
         setInfoLoading(false);
       }
-      let varchatId;
+      
       const chat = await fetch("/api/get_chat", {
           method: "POST",
           headers: {
@@ -164,7 +165,6 @@ export default function MainUI({
           }),
         });
         const chatData = await chat.json();
-        varchatId = chatData.chat.id;
         if (!chatData.chat.length) {
           const newchat = await fetch("/api/new_chat", {
             method: "POST",
@@ -191,6 +191,8 @@ export default function MainUI({
           setMessages(getmessagesData.chatmessages);
           setChatLoading(false);
         } else {
+          varchatId = chatData.chat.id;
+          setChatId(varchatId);
           const getmessages = await fetch("/api/get_messages", {
             method: "POST",
             headers: {
@@ -202,7 +204,6 @@ export default function MainUI({
           });
           const getmessagesData = await getmessages.json();
           setMessages(getmessagesData.chatmessages);
-          setChatId(varchatId);
           setChatLoading(false);
         }
 
@@ -229,7 +230,6 @@ export default function MainUI({
               },
             }
           );
-          setExistingAnalysis(false);
         }
     };
     fetchInfo();
@@ -256,7 +256,7 @@ export default function MainUI({
         </>
       )}
       <p></p>
-      {existingAnalysis ? <p>{completion}</p> : <p>{analysis}</p>}
+      {existingAnalysis ? <p>{analysis}</p> : <p>{completion}</p>}
       {chatLoading ? (
         <p>Loading chat...</p>
       ) : (
