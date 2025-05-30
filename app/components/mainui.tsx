@@ -30,7 +30,7 @@ interface Info {
   updated_at: string;
 }
 
-export default function Info({
+export default function MainUI({
   slug,
   userId,
   link,
@@ -55,17 +55,16 @@ export default function Info({
     updated_at: "",
   });
   const [review, setReviews] = useState<Review[]>([]);
-  const [infoloading, setInfoLoading] = useState(true);
   const [analysis, setAnalysis] = useState();
-  const [existingAnalysis, setExistingAnalysis] = useState(true);
   const [chatId, setChatId] = useState();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [existingAnalysis, setExistingAnalysis] = useState(true);
+  const [infoloading, setInfoLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(true);
-  const hasInfoRun = useRef(false);
-  const hasChatRun = useRef(false);
+  const hasRun = useRef(false);
   useEffect(() => {
-    if (hasInfoRun.current) return;
-    hasInfoRun.current = true;
+    if (hasRun.current) return;
+    hasRun.current = true;
     const fetchInfo = async () => {
       const confirmation = await fetch("/api/confrimation", {
         method: "POST",
@@ -221,10 +220,14 @@ export default function Info({
         setExistingAnalysis(true);
 
         if (!getanalysisData.analysis) {
-          complete(
-            `generate an analysis from this: ${info.name} ${
-              info.description
-            } ${review.map((item) => item.text)}`,
+          complete(`generate an analysis from this: ${info.name} ${
+            info.description
+          } ${review.map((item) => item.text).join(" ")}`,
+            {
+              body: {
+                projectId: projectId,
+              },
+            }
           );
           setExistingAnalysis(false);
         }

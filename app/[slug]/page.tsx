@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import Info from "../components/info";
+import MainUI from "../components/mainui";
 
 export default async function Page({
   params,
@@ -19,5 +19,5 @@ export default async function Page({
     redirect("/login");
   }
 
-  return <Info slug={slug} userId={data.user.id} link={link} />;
+  return <MainUI slug={slug} userId={data.user.id} link={link} />;
 }

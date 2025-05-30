@@ -19,8 +19,10 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
   console.log("it works");
-  const { prompt, project_id }: { prompt: string; project_id: number } =
+  const { prompt, projectId }: { prompt: string; projectId: number } =
     await req.json();
+
+  console.log(projectId);
 
   const enhancedModel = wrapLanguageModel({
     model: togetherai("deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"),
@@ -35,10 +37,9 @@ export async function POST(req: Request) {
       await db
         .update(chats)
         .set({
-          analysis: text,
-          updatedAt: new Date(),
+          analysis: text || "",
         })
-        .where(eq(chats.project_id, project_id));
+        .where(eq(chats.project_id, projectId));
     },
   });
 
