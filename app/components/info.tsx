@@ -165,7 +165,7 @@ export default function Info({
           }),
         });
         const chatData = await chat.json();
-        varchatId = chatData.chat[0].id;
+        varchatId = chatData.chat.id;
         if (!chatData.chat.length) {
           const newchat = await fetch("/api/new_chat", {
             method: "POST",
@@ -189,7 +189,7 @@ export default function Info({
             }),
           });
           const getmessagesData = await getmessages.json();
-          setMessages(getmessagesData.messages);
+          setMessages(getmessagesData.chatmessages);
           setChatLoading(false);
         } else {
           const getmessages = await fetch("/api/get_messages", {
@@ -202,7 +202,7 @@ export default function Info({
             }),
           });
           const getmessagesData = await getmessages.json();
-          setMessages(getmessagesData.messages);
+          setMessages(getmessagesData.chatmessages);
           setChatId(varchatId);
           setChatLoading(false);
         }
@@ -220,7 +220,7 @@ export default function Info({
         setAnalysis(getanalysisData.analysis);
         setExistingAnalysis(true);
 
-        if (!getanalysisData.analysis.length) {
+        if (!getanalysisData.analysis) {
           complete(
             `generate an analysis from this: ${info.name} ${
               info.description

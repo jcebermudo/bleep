@@ -36,6 +36,7 @@ export async function POST(req: Request) {
         .update(chats)
         .set({
           analysis: text,
+          updatedAt: new Date(),
         })
         .where(eq(chats.project_id, project_id));
     },
