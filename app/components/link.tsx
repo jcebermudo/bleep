@@ -94,7 +94,7 @@ export default function Link({ userId }: { userId: string }) {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="bg-[#171717] w-[700px] rounded-[10px] px-[15px] py-[15px] outline-[1.5px] outline-[#2D2D2D]">
+      <div className="bg-[#171717] w-[700px] rounded-[20px] px-[15px] py-[15px] outline-[1.5px] outline-[#2D2D2D]">
         <form
           onSubmit={gotoProject}
           method="get"
@@ -131,33 +131,54 @@ export default function Link({ userId }: { userId: string }) {
           </div>
         </form>
       </div>
-      <div className="flex flex-row items-center gap-4">
+      <div className="flex flex-row items-center gap-4 font-medium">
         <button
+          className="flex flex-row items-center gap-2 cursor-pointer bg-[#171717] py-[10px] px-[20px] rounded-full"
           onClick={() =>
             setInputValue(
               "https://chromewebstore.google.com/detail/grammarly-ai-writing-and/kbfnbcaeplbcioakkpcpgfkobkghlhen"
             )
           }
         >
-          Grammarly
+          <Image
+            src="/images/grammarly.png"
+            alt="grammarly"
+            width={20}
+            height={20}
+          />
+          <span>Grammarly</span>
         </button>
         <button
+          className="flex flex-row items-center gap-2 cursor-pointer"
           onClick={() =>
             setInputValue(
               "https://chromewebstore.google.com/detail/lighthouse/blipmdconlkpinefehnmjammfjpmpbjk"
             )
           }
         >
-          Lighthouse
+          <Image
+            src="/images/lighthouse.png"
+            alt="lighthouse"
+            width={20}
+            height={20}
+          />
+          <span>Lighthouse</span>
         </button>
         <button
+          className="flex flex-row items-center gap-2 cursor-pointer"
           onClick={() =>
             setInputValue(
               "https://chromewebstore.google.com/detail/website-seo-checker/nljcdkjpjnhlilgepggmmagnmebhadnk"
             )
           }
         >
-          Website SEO Checker
+          <Image
+            src="/images/webseochecker.png"
+            alt="seo"
+            width={20}
+            height={20}
+          />
+          <span>Website SEO Checker</span>
         </button>
       </div>
     </div>
