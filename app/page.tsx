@@ -11,7 +11,7 @@ export default async function Home() {
   }
   return (
     <div className="w-full h-full flex items-center px-[10px] justify-center bg-black">
-      <div className="bg-amber-500 w-full overflow-auto">
+      <div className="bg-[#070707] w-full overflow-auto">
         <div className="flex flex-col items-center">
           <h1 className="text-[32px] font-medium">
             Generate Chrome extension ideas
@@ -20,7 +20,7 @@ export default async function Home() {
             Collect bad reviews from any Chrome extension and use AI to get
             useful insights and new product ideas.
           </p>
-          <Link userId={data.user.id}/>
+          <Link userId={data.user.id} />
         </div>
       </div>
     </div>

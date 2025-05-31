@@ -56,33 +56,67 @@ export default function Link({ userId }: { userId: string }) {
   const isButtonDisabled = !inputValue.trim() || !isValid;
 
   return (
-    <div className="bg-[#171717] w-[561.97px] rounded-[10px] px-[15px] py-[20px] outline-[1.5px] outline-[#2D2D2D]">
-      <form
-        onSubmit={gotoProject}
-        method="get"
-        className="flex flex-row items-center w-full justify-between gap-4"
-      >
-        <input
-          className="bg-[#171717] outline-none focus:outline-none text-white placeholder:text-[#B5B5B5] placeholder:font-medium placeholder:text-[16px] flex-1"
-          type="text"
-          name="link"
-          value={inputValue}
-          onChange={handleInputChange}
-          autoComplete="off"
-          placeholder="Paste Chrome webstore link here"
-        />
+    <div className="flex flex-col items-center">
+      <div className="bg-[#171717] w-[700px] rounded-[10px] px-[15px] py-[15px] outline-[1.5px] outline-[#2D2D2D]">
+        <form
+          onSubmit={gotoProject}
+          method="get"
+          className="flex flex-row items-center w-full justify-between gap-4"
+        >
+          <div className="relative flex-1 overflow-hidden">
+            <input
+              className="bg-[#171717] outline-none focus:outline-none text-white placeholder:text-[#B5B5B5] placeholder:font-medium placeholder:text-[16px] w-full pr-8" // Added pr-8 for padding
+              type="text"
+              name="link"
+              value={inputValue}
+              onChange={handleInputChange}
+              autoComplete="off"
+              placeholder="Paste Chrome webstore link here"
+            />
+            <div className="absolute -right-4 top-0 bottom-0 w-20 bg-gradient-to-l from-[#171717] to-transparent pointer-events-none" />
+          </div>
+          <button
+            type="submit"
+            disabled={isButtonDisabled}
+            className={
+              isButtonDisabled
+                ? "cursor-not-allowed bg-white w-[37px] h-[37px] flex items-center justify-center rounded-[10px] opacity-50"
+                : "cursor-pointer bg-white w-[37px] h-[37px] flex items-center justify-center rounded-[10px]"
+            }
+          >
+            <Image src="/images/arrow.svg" alt="arrow" width={20} height={20} />
+          </button>
+        </form>
+      </div>
+      <div className="flex flex-row items-center gap-4">
         <button
-          type="submit"
-          disabled={isButtonDisabled}
-          className={
-            isButtonDisabled
-              ? "cursor-not-allowed bg-white w-[37px] h-[37px] flex items-center justify-center rounded-[10px] opacity-50"
-              : "cursor-pointer bg-white w-[37px] h-[37px] flex items-center justify-center rounded-[10px]"
+          onClick={() =>
+            setInputValue(
+              "https://chromewebstore.google.com/detail/grammarly-ai-writing-and/kbfnbcaeplbcioakkpcpgfkobkghlhen"
+            )
           }
         >
-          <Image src="/images/arrow.svg" alt="arrow" width={20} height={20} />
+          Grammarly
         </button>
-      </form>
+        <button
+          onClick={() =>
+            setInputValue(
+              "https://chromewebstore.google.com/detail/lighthouse/blipmdconlkpinefehnmjammfjpmpbjk"
+            )
+          }
+        >
+          Lighthouse
+        </button>
+        <button
+          onClick={() =>
+            setInputValue(
+              "https://chromewebstore.google.com/detail/website-seo-checker/nljcdkjpjnhlilgepggmmagnmebhadnk"
+            )
+          }
+        >
+          Website SEO Checker
+        </button>
+      </div>
     </div>
   );
 }
