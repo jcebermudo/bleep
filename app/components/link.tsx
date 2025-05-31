@@ -1,5 +1,5 @@
 "use client";
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -27,9 +27,17 @@ export default function Link({ userId }: { userId: string }) {
     }
   }
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setInputValue(value);
+
+    // Auto-resize textarea
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
 
     if (value.trim()) {
       setIsValid(validateWebStoreLink(value));
@@ -61,31 +69,37 @@ export default function Link({ userId }: { userId: string }) {
         <form
           onSubmit={gotoProject}
           method="get"
-          className="flex flex-row items-center w-full justify-between gap-4"
+          className="flex flex-col w-full justify-between gap-4"
         >
-          <div className="relative flex-1 overflow-hidden">
-            <input
-              className="bg-[#171717] outline-none focus:outline-none text-white placeholder:text-[#B5B5B5] placeholder:font-medium placeholder:text-[16px] w-full pr-8" // Added pr-8 for padding
-              type="text"
-              name="link"
-              value={inputValue}
-              onChange={handleInputChange}
-              autoComplete="off"
-              placeholder="Paste Chrome webstore link here"
-            />
-            <div className="absolute -right-4 top-0 bottom-0 w-20 bg-gradient-to-l from-[#171717] to-transparent pointer-events-none" />
+          <textarea
+            ref={textareaRef}
+            className="bg-[#171717] resize-none outline-none focus:outline-none text-white placeholder:text-[#B5B5B5] placeholder:font-medium placeholder:text-[16px] w-full pr-8 overflow-hidden"
+            name="link"
+            value={inputValue}
+            onChange={handleInputChange}
+            onInput={handleInputChange}
+            autoComplete="off"
+            placeholder="Paste Chrome webstore link here"
+            rows={1}
+          />
+          <div className="w-full flex items-end justify-end">
+            <button
+              type="submit"
+              disabled={isButtonDisabled}
+              className={
+                isButtonDisabled
+                  ? "cursor-not-allowed bg-white w-[37px] h-[37px] flex items-center justify-center rounded-full opacity-50 rotate-270"
+                  : "cursor-pointer bg-white w-[37px] h-[37px] flex items-center justify-center rounded-full rotate-270"
+              }
+            >
+              <Image
+                src="/images/arrow.svg"
+                alt="arrow"
+                width={17}
+                height={17}
+              />
+            </button>
           </div>
-          <button
-            type="submit"
-            disabled={isButtonDisabled}
-            className={
-              isButtonDisabled
-                ? "cursor-not-allowed bg-white w-[37px] h-[37px] flex items-center justify-center rounded-[10px] opacity-50"
-                : "cursor-pointer bg-white w-[37px] h-[37px] flex items-center justify-center rounded-[10px]"
-            }
-          >
-            <Image src="/images/arrow.svg" alt="arrow" width={20} height={20} />
-          </button>
         </form>
       </div>
       <div className="flex flex-row items-center gap-4">
