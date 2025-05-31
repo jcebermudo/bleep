@@ -154,8 +154,19 @@ export default function MainUI({
         setReviews(infoData.reviews);
         setInfoLoading(false);
       }
-      
+
       const chat = await fetch("/api/get_chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          projectId: projectId,
+        }),
+      });
+      const chatData = await chat.json();
+      if (!chatData.chat.length) {
+        const newchat = await fetch("/api/new_chat", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -164,60 +175,23 @@ export default function MainUI({
             projectId: projectId,
           }),
         });
-        const chatData = await chat.json();
-        if (!chatData.chat.length) {
-          const newchat = await fetch("/api/new_chat", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              projectId: projectId,
-            }),
-          });
-          const newchatData = await newchat.json();
-          varchatId = newchatData.chatId;
-          setChatId(varchatId);
-          const getmessages = await fetch("/api/get_messages", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              chatId: varchatId,
-            }),
-          });
-          const getmessagesData = await getmessages.json();
-          setMessages(getmessagesData.chatmessages);
-          setChatLoading(false);
-        } else {
-          const existingchat = await fetch("/api/get_chat", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              projectId: projectId,
-            }),
-          });
-          const existingchatData = await existingchat.json();
-          varchatId = existingchatData.chat[0].id;
-          setChatId(varchatId);
-          const getmessages = await fetch("/api/get_messages", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              chatId: varchatId,
-            }),
-          });
-          const getmessagesData = await getmessages.json();
-          setMessages(getmessagesData.chatmessages);
-          setChatLoading(false);
-        }
-
-        const getanalysis = await fetch("/api/get_analysis", {
+        const newchatData = await newchat.json();
+        varchatId = newchatData.chatId;
+        setChatId(varchatId);
+        const getmessages = await fetch("/api/get_messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            chatId: varchatId,
+          }),
+        });
+        const getmessagesData = await getmessages.json();
+        setMessages(getmessagesData.chatmessages);
+        setChatLoading(false);
+      } else {
+        const existingchat = await fetch("/api/get_chat", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -226,25 +200,51 @@ export default function MainUI({
             projectId: projectId,
           }),
         });
-        const getanalysisData = await getanalysis.json();
-        setAnalysis(getanalysisData.analysis);
+        const existingchatData = await existingchat.json();
+        varchatId = existingchatData.chat[0].id;
+        setChatId(varchatId);
+        const getmessages = await fetch("/api/get_messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            chatId: varchatId,
+          }),
+        });
+        const getmessagesData = await getmessages.json();
+        setMessages(getmessagesData.chatmessages);
+        setChatLoading(false);
+      }
 
+      const getanalysis = await fetch("/api/get_analysis", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          projectId: projectId,
+        }),
+      });
+      const getanalysisData = await getanalysis.json();
+      setAnalysis(getanalysisData.analysis);
 
-        if (getanalysisData.analysis !== null) {
-          setExistingAnalysis(true);
-        }
+      if (getanalysisData.analysis !== null) {
+        setExistingAnalysis(true);
+      }
 
-        if (getanalysisData.analysis === null) {
-          complete(`generate an analysis from this: ${info.name} ${
+      if (getanalysisData.analysis === null) {
+        complete(
+          `generate an analysis from this: ${info.name} ${
             info.description
           } ${review.map((item) => item.text).join(" ")}`,
-            {
-              body: {
-                projectId: projectId,
-              },
-            }
-          );
-        }
+          {
+            body: {
+              projectId: projectId,
+            },
+          },
+        );
+      }
     };
     fetchInfo();
   }, [slug, userId, link]);

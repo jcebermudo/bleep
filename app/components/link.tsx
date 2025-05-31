@@ -54,26 +54,40 @@ export default function Link({ userId }: { userId: string }) {
     }
   };
 
-  
-
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Separate function to handle textarea auto-resize
+  const adjustTextareaHeight = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  };
 
   const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setInputValue(value);
 
     // Auto-resize textarea
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
+    adjustTextareaHeight();
 
     if (value.trim()) {
       setIsValid(validateWebStoreLink(value));
     } else {
       setIsValid(true);
     }
-  }
+  };
+
+  // Function to set input value and adjust height
+  const setInputValueWithResize = (value: string) => {
+    setInputValue(value);
+    setIsValid(validateWebStoreLink(value));
+
+    // Use setTimeout to ensure the DOM is updated before adjusting height
+    setTimeout(() => {
+      adjustTextareaHeight();
+    }, 0);
+  };
 
   const gotoProject = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -86,14 +100,14 @@ export default function Link({ userId }: { userId: string }) {
       : `https://${inputValue}`;
 
     await router.push(
-      `/${linkId}?process=true&link=${encodeURIComponent(link)}`
+      `/${linkId}?process=true&link=${encodeURIComponent(link)}`,
     );
   };
 
   const isButtonDisabled = !inputValue.trim() || !isValid;
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center mt-[10px]">
       <div className="bg-[#171717] w-[700px] rounded-[20px] px-[15px] py-[15px] outline-[1.5px] outline-[#2D2D2D]">
         <form
           onSubmit={gotoProject}
@@ -102,7 +116,7 @@ export default function Link({ userId }: { userId: string }) {
         >
           <textarea
             ref={textareaRef}
-            className="bg-[#171717] resize-none outline-none focus:outline-none text-white placeholder:text-[#B5B5B5] placeholder:font-medium placeholder:text-[16px] w-full pr-8 overflow-hidden"
+            className="bg-[#171717] resize-none font-normal outline-none focus:outline-none text-white placeholder:text-[#B5B5B5] placeholder:font-normal placeholder:text-[16px] w-full pr-8 overflow-hidden"
             name="link"
             value={inputValue}
             onChange={handleInputChange}
@@ -131,12 +145,12 @@ export default function Link({ userId }: { userId: string }) {
           </div>
         </form>
       </div>
-      <div className="flex flex-row items-center gap-4 font-medium">
+      <div className="flex flex-row items-center gap-4 font-medium mt-[15px]">
         <button
-          className="flex flex-row items-center gap-2 cursor-pointer bg-[#171717] py-[10px] px-[20px] rounded-full"
+          className="flex flex-row items-center gap-2 cursor-pointer bg-[#171717] py-[10px] px-[20px] rounded-full outline-[1px] outline-[#2D2D2D]"
           onClick={() =>
-            setInputValue(
-              "https://chromewebstore.google.com/detail/grammarly-ai-writing-and/kbfnbcaeplbcioakkpcpgfkobkghlhen"
+            setInputValueWithResize(
+              "https://chromewebstore.google.com/detail/grammarly-ai-writing-and/kbfnbcaeplbcioakkpcpgfkobkghlhen",
             )
           }
         >
@@ -149,10 +163,10 @@ export default function Link({ userId }: { userId: string }) {
           <span>Grammarly</span>
         </button>
         <button
-          className="flex flex-row items-center gap-2 cursor-pointer"
+          className="flex flex-row items-center gap-2 cursor-pointer bg-[#171717] py-[10px] px-[20px] rounded-full outline-[1px] outline-[#2D2D2D]"
           onClick={() =>
-            setInputValue(
-              "https://chromewebstore.google.com/detail/lighthouse/blipmdconlkpinefehnmjammfjpmpbjk"
+            setInputValueWithResize(
+              "https://chromewebstore.google.com/detail/lighthouse/blipmdconlkpinefehnmjammfjpmpbjk",
             )
           }
         >
@@ -165,10 +179,10 @@ export default function Link({ userId }: { userId: string }) {
           <span>Lighthouse</span>
         </button>
         <button
-          className="flex flex-row items-center gap-2 cursor-pointer"
+          className="flex flex-row items-center gap-2 cursor-pointer bg-[#171717] py-[10px] px-[20px] rounded-full outline-[1px] outline-[#2D2D2D]"
           onClick={() =>
-            setInputValue(
-              "https://chromewebstore.google.com/detail/website-seo-checker/nljcdkjpjnhlilgepggmmagnmebhadnk"
+            setInputValueWithResize(
+              "https://chromewebstore.google.com/detail/website-seo-checker/nljcdkjpjnhlilgepggmmagnmebhadnk",
             )
           }
         >
