@@ -12,7 +12,7 @@ export default async function Home() {
   }
   return (
     <div className="w-full h-full flex flex-col items-center px-[10px] justify-center bg-black">
-      <div className="bg-[#070707] w-full overflow-auto">
+      <div className="div-w-scrollbar bg-[#070707] w-full h-screen overflow-y-auto">
         <div className="flex flex-col items-center">
           <h1 className="text-[32px] font-medium">
             Generate Chrome extension ideas
@@ -23,7 +23,9 @@ export default async function Home() {
           </p>
           <Link userId={data.user.id} />
         </div>
+        <div className="mt-[30px] flex flex-col items-center">
           <Projects userId={data.user.id} />
+        </div>
       </div>
     </div>
   );

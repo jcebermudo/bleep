@@ -18,7 +18,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${myFont.className} antialiased overflow-hidden`}>
+      <body
+        className={`${myFont.className} antialiased overflow-hidden selection:bg-[#3E0042] selection:text-[#FBC7FF]`}
+      >
         {children}
       </body>
     </html>
