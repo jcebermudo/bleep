@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${myFont.className} antialiased`}
+        className={`${myFont.className} antialiased overflow-hidden`}
       >
         {children}
       </body>
