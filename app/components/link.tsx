@@ -11,9 +11,6 @@ interface Review {
 }
 
 export default function Link({ userId }: { userId: string }) {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const gotoProject = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -27,17 +24,26 @@ export default function Link({ userId }: { userId: string }) {
   };
 
   return (
-    <div className="bg-black ">
-      <form onSubmit={gotoProject} method="get">
+    <div className="bg-[#171717] w-[561.97px] rounded-[10px] px-[15px] py-[20px]">
+      <form
+        onSubmit={gotoProject}
+        method="get"
+        className="flex flex-row items-center w-full justify-between gap-4"
+      >
         <input
-          className="border border-solid border-black bg-white text-black"
+          className="bg-[#171717] outline-none focus:outline-none text-white placeholder:text-[#B5B5B5] placeholder:font-medium placeholder:text-[16px] flex-1"
           type="text"
           name="link"
+          autoComplete="off"
+          placeholder="Paste Chrome webstore link here"
         />
-        <button type="submit">Submit</button>
+        <button
+          type="submit"
+          className="cursor-pointer text-white font-medium py-2 px-4 rounded whitespace-nowrap"
+        >
+          Submit
+        </button>
       </form>
-      {loading && <p>Loading...</p>}
-      {error && <p>{error}</p>}
     </div>
   );
 }
