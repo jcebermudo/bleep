@@ -16,16 +16,45 @@ export default function Link({ userId }: { userId: string }) {
   const [inputValue, setInputValue] = useState("");
   const [isValid, setIsValid] = useState(true);
 
+  const hasDuplicateUrls = (input: string): boolean => {
+    const cleanInput = input.trim();
+
+    // Simple check: if we have "https://" appearing more than once, it's likely concatenated URLs
+    const httpsCount = (cleanInput.match(/https?:\/\//g) || []).length;
+    if (httpsCount > 1) {
+      return true;
+    }
+
+    // Also check if we have multiple chrome web store domains
+    const domainPattern = /(chromewebstore\.google\.com|chrome\.google\.com)/gi;
+    const domainMatches = cleanInput.match(domainPattern) || [];
+    if (domainMatches.length > 1) {
+      return true;
+    }
+
+    return false;
+  };
+
   const validateWebStoreLink = (url: string): boolean => {
     try {
+      // Check for duplicate URLs first
+      if (hasDuplicateUrls(url)) {
+        return false;
+      }
+
       const fullUrl = url.startsWith("http") ? url : `https://${url}`;
       const urlObj = new URL(fullUrl);
 
-      return urlObj.hostname.endsWith("chromewebstore.google.com") || urlObj.hostname.endsWith("chrome.google.com")
+      return (
+        urlObj.hostname.endsWith("chromewebstore.google.com") ||
+        urlObj.hostname.endsWith("chrome.google.com")
+      );
     } catch (error) {
-      return false
+      return false;
     }
-  }
+  };
+
+  
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
