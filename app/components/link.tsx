@@ -56,7 +56,7 @@ export default function Link({ userId }: { userId: string }) {
   const isButtonDisabled = !inputValue.trim() || !isValid;
 
   return (
-    <div className="bg-[#171717] w-[561.97px] rounded-[10px] px-[15px] py-[20px]">
+    <div className="bg-[#171717] w-[561.97px] rounded-[10px] px-[15px] py-[20px] outline-[1.5px] outline-[#2D2D2D]">
       <form
         onSubmit={gotoProject}
         method="get"
@@ -74,7 +74,11 @@ export default function Link({ userId }: { userId: string }) {
         <button
           type="submit"
           disabled={isButtonDisabled}
-          className="cursor-pointer bg-white w-[37px] h-[37px] flex items-center justify-center rounded-[10px]"
+          className={
+            isButtonDisabled
+              ? "cursor-not-allowed bg-white w-[37px] h-[37px] flex items-center justify-center rounded-[10px] opacity-50"
+              : "cursor-pointer bg-white w-[37px] h-[37px] flex items-center justify-center rounded-[10px]"
+          }
         >
           <Image src="/images/arrow.svg" alt="arrow" width={20} height={20} />
         </button>
