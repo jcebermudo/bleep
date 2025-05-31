@@ -23,8 +23,8 @@ export default async function Home() {
           </p>
           <Link userId={data.user.id} />
         </div>
+        <Projects userId={data.user.id} />
       </div>
-      <Projects userId={data.user.id} />
     </div>
   );
 }

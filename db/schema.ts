@@ -6,6 +6,7 @@ import {
   timestamp,
   json,
 } from "drizzle-orm/pg-core";
+import { type InferSelectModel, type InferInsertModel } from 'drizzle-orm';
 
 export const project = pgTable("project", {
   id: serial("id").primaryKey(),
@@ -53,3 +54,7 @@ export const messages = pgTable("messages", {
   parts: json("parts").default([]),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export type Project = InferSelectModel<typeof project>;
+export type InsertProject = InferInsertModel<typeof project>;
+
