@@ -4,14 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-interface Review {
-  rating: number;
-  text: string;
-  date: string;
-  dateObj?: Date;
-}
-
-export default function Link({ userId }: { userId: string }) {
+export default function Link({ userId }: { userId: string | null }) {
   const router = useRouter();
   const [inputValue, setInputValue] = useState("");
   const [isValid, setIsValid] = useState(true);

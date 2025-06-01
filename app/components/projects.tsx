@@ -8,10 +8,12 @@ import { useRouter } from "next/navigation";
 
 dayjs.extend(relativeTime);
 
-export default function Projects({ userId }: { userId: string }) {
-    const router = useRouter();
+export default function Projects({ userId }: { userId: string | null }) {
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [loggedIn, setLoggedIn] = useState<boolean>(false);
   useEffect(() => {
+    if (!userId) return;
     const fetchProjects = async () => {
       const response = await fetch(`/api/display_projects`, {
         method: "POST",
@@ -22,7 +24,7 @@ export default function Projects({ userId }: { userId: string }) {
       });
       const data = await response.json();
       setProjects(data.projects);
-      console.log(data.projects);
+      setLoggedIn(true);
     };
     fetchProjects();
   }, [userId]);
@@ -30,27 +32,31 @@ export default function Projects({ userId }: { userId: string }) {
     <div className="mt-[30px] max-w-[1050px]">
       <h2 className="text-[24px] font-medium">My projects</h2>
       <div className="flex flex-wrap gap-4 justify-start mt-[20px]">
-        {projects.map((project) => (
-          <button
-            key={project.id}
-            className="cursor-pointer flex flex-col flex-grow items-start gap-[10px] bg-[#171717] w-[250px] px-[30px] py-[20px] rounded-[20px] outline-[1px] outline-[#2D2D2D]"
-            onClick={() => {
-              router.push(`/${project.project_uuid}`);
-            }}
-          >
-            <Image
-              className="rounded-[15px]"
-              src={project.icon || ""}
-              alt={project.name || ""}
-              width={50}
-              height={50}
-            />
-            <h3 className="font-medium text-[16px]">{project.name}</h3>
-            <p className="text-[16px] font-medium text-[#B9B9B9]">
-              {dayjs(project.actual_date_of_creation).fromNow()}
-            </p>
-          </button>
-        ))}
+        {loggedIn ?
+            projects.map((project) => (
+              <button
+                key={project.id}
+                className="cursor-pointer flex flex-col flex-grow items-start gap-[10px] bg-[#171717] w-[250px] px-[30px] py-[20px] rounded-[20px] outline-[1px] outline-[#2D2D2D]"
+                onClick={() => {
+                  router.push(`/${project.project_uuid}`);
+                }}
+              >
+                <Image
+                  className="rounded-[15px]"
+                  src={project.icon || ""}
+                  alt={project.name || ""}
+                  width={50}
+                  height={50}
+                />
+                <h3 className="font-medium text-[16px]">{project.name}</h3>
+                <p className="text-[16px] font-medium text-[#B9B9B9]">
+                  {dayjs(project.actual_date_of_creation).fromNow()}
+                </p>
+              </button>
+            ))
+          : (
+            <div></div>
+          )}
       </div>
     </div>
   );

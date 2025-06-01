@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import Projects from "./components/projects";
 import Image from "next/image"
 import * as motion from "motion/react-client";
+import User from "./components/user";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -14,7 +15,19 @@ export default async function Home() {
   }
   return (
     <div className="w-full h-full flex flex-col items-center px-[10px] justify-center bg-black">
-      <div className="rounded-t-[20px] outline-[1px] outline-[#2D2D2D] bg-[#070707] w-full h-screen overflow-y-auto">
+      <div className="w-full flex flex-row justify-between items-center mt-[10px]">
+        <Image
+          className="select-none"
+          src="/images/BLEEP-LOGO.svg"
+          alt="bleep-logo"
+          width={90}
+          height={26.2}
+        />
+        <div className="flex flex-row items-center">
+          <User userId={data.user.id} avatar_url={data.user.user_metadata.avatar_url} name={data.user.user_metadata.name} email={data.user.user_metadata.email} />
+        </div>
+      </div>
+      <div className="rounded-t-[20px] outline-[1px] outline-[#2D2D2D] bg-[#070707] w-full h-screen overflow-y-auto mt-[10px]">
         <div className="flex flex-col items-center mt-[100px]">
           <div className="relative">
               <motion.div

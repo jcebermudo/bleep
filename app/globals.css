@@ -28,11 +28,13 @@ body {
 /* width */
 ::-webkit-scrollbar {
   width: 5px;
+  margin-top: 20px;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
   background: #070707;
+  margin-top: 20px;
 }
 
 /* Handle */
