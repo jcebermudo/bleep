@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 import { redirect } from "next/navigation";
+import Markdown from "react-markdown";
 
 export default function User({
   userId,

@@ -5,6 +5,8 @@ import { Message } from "ai";
 import Chat from "./chat";
 import { useCompletion } from "@ai-sdk/react";
 import { p } from "motion/react-client";
+import Image from "next/image";
+import ShowMore from "./showmore"
 
 interface Review {
   id: number;
@@ -249,35 +251,63 @@ export default function MainUI({
     fetchInfo();
   }, [slug, userId, link]);
   return (
-    <div className="flex flex-row gap-4">
-      <div>
-        {existingAnalysis ? <p>{analysis}</p> : <p>{completion}</p>}
-        {chatLoading ? (
-          <p>Loading chat...</p>
-        ) : (
-          <Chat id={chatId} initialMessages={messages} />
-        )}
-      </div>
-      <div>
-        {infoloading ? (
-          <p>Loading...</p>
-        ) : (
-          <>
-            {info && <div>{info.name}</div>}
-            {info && <p>{info.description}</p>}
-            {review && review.length > 0 ? (
-              review.map((item, index) => (
-                <div key={index}>
-                  <p>{item.text}</p>
-                  <p>{item.rating}</p>
-                  <p>{item.date}</p>
-                </div>
-              ))
+    <div className="w-full h-full flex flex-col items-center px-[10px] justify-center bg-black">
+      <div className="rounded-t-[20px] outline-[1px] outline-[#2D2D2D] bg-[#070707] w-full h-screen mt-[10px]">
+        <div className="flex flex-row gap-4">
+          <div>
+            {existingAnalysis ? <p>{analysis}</p> : <p>{completion}</p>}
+            {chatLoading ? (
+              <p>Loading chat...</p>
             ) : (
-              <p>No reviews available</p>
+              <Chat id={chatId} initialMessages={messages} />
             )}
-          </>
-        )}
+          </div>
+          <div className="bg-[#101010] h-screen rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px] w-[1000px] overflow-y-auto">
+            {infoloading ? (
+              <p>Loading...</p>
+            ) : (
+              <>
+                <div className="flex flex-col ">
+                  <div className="flex flex-row items-center gap-[15px] bg-[#171717] rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
+                    <Image
+                      src={info.icon}
+                      alt={info.name}
+                      width={40}
+                      height={40}
+                    />
+                    {info && (
+                      <div className="font-medium text-[16px]">{info.name}</div>
+                    )}
+                  </div>
+                  <div className=" bg-[#171717] rounded-b-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
+                    <p className="font-medium text-[16px] text-[#B5B5B5]">
+                      About
+                    </p>
+                    {info && <ShowMore text={info.description} />}
+                  </div>
+                </div>
+                <div>
+                  <div>
+                    <p className="font-medium text-white text-[16px]">Found {review.length} reviews below 5 stars</p>
+                  </div>
+                  <div>
+                    {review && review.length > 0 ? (
+                      review.map((item, index) => (
+                        <div key={index}>
+                          <p>{item.text}</p>
+                          <p>{item.rating}</p>
+                          <p>{item.date}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No reviews available</p>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
