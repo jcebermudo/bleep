@@ -256,9 +256,9 @@ export default function MainUI({
       <div className="rounded-t-[20px] outline-[1px] outline-[#2D2D2D] bg-[#070707] w-full h-screen mt-[10px]">
         <div className="flex flex-row justify-between gap-[5px]">
           <div className="w-full flex flex-row justify-center  h-screen overflow-y-auto">
-            <div className="p-[30px] max-w-[700px] w-[700px]">
+            <div className="p-[30px] max-w-[800px] w-[800px]">
               <div className="w-full flex flex-row justify-end">
-                <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] w-[500px]">
+                <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px]">
                   {link}
                 </p>
               </div>
