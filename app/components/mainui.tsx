@@ -254,15 +254,24 @@ export default function MainUI({
   return (
     <div className="w-full h-full flex flex-col items-center px-[10px] justify-center bg-black">
       <div className="rounded-t-[20px] outline-[1px] outline-[#2D2D2D] bg-[#070707] w-full h-screen mt-[10px]">
-        <div className="flex flex-row justify-between gap-4">
-          <div className="w-full flex flex-row justify-center">
+        <div className="flex flex-row justify-between gap-[5px]">
+          <div className="w-full flex flex-row justify-center  h-screen overflow-y-auto">
             <div className="p-[30px] max-w-[700px] w-[700px]">
               <div className="w-full flex flex-row justify-end">
                 <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] w-[500px]">
                   {link}
                 </p>
               </div>
-              <div className="mt-[20px]">
+              <div className="mt-[20px] space-y-[10px]">
+                <div className="flex flex-row items-center gap-[8px]">
+                  <Image
+                    src="/images/bleep.svg"
+                    alt="bleep"
+                    width={25}
+                    height={25}
+                  />
+                  <p className="font-medium text-[16px]">Bleep</p>
+                </div>
                 {existingAnalysis ? (
                   <Markdown>{analysis}</Markdown>
                 ) : (

@@ -1,6 +1,7 @@
 "use client";
 
 import { Message, useChat } from "@ai-sdk/react";
+import Markdown from "react-markdown";
 
 export default function Chat({
   id,
@@ -17,7 +18,7 @@ export default function Chat({
     },
   });
   return (
-    <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
+    <div className="flex flex-col w-full mt-[20px] pb-[200px] mx-auto stretch">
       {messages.map((m) => (
         <div key={m.id}>
           {/* Access reasoning from parts instead of reasoning property */}
@@ -27,7 +28,7 @@ export default function Chat({
               <p key={index}>{reasoningPart.reasoning}</p>
             ))}
           {m.role === "user" ? "User: " : "AI: "}
-          {m.content}
+          <Markdown>{m.content}</Markdown>
         </div>
       ))}
 
