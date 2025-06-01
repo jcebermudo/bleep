@@ -4,9 +4,10 @@ import { useState, useEffect, useRef } from "react";
 import { Message } from "ai";
 import Chat from "./chat";
 import { useCompletion } from "@ai-sdk/react";
-import { p } from "motion/react-client";
+import { div, p } from "motion/react-client";
 import Image from "next/image";
 import ShowMore from "./showmore"
+import Markdown from "react-markdown";
 
 interface Review {
   id: number;
@@ -253,59 +254,254 @@ export default function MainUI({
   return (
     <div className="w-full h-full flex flex-col items-center px-[10px] justify-center bg-black">
       <div className="rounded-t-[20px] outline-[1px] outline-[#2D2D2D] bg-[#070707] w-full h-screen mt-[10px]">
-        <div className="flex flex-row gap-4">
-          <div>
-            {existingAnalysis ? <p>{analysis}</p> : <p>{completion}</p>}
-            {chatLoading ? (
-              <p>Loading chat...</p>
-            ) : (
-              <Chat id={chatId} initialMessages={messages} />
-            )}
+        <div className="flex flex-row justify-between gap-4">
+          <div className="w-full flex flex-row justify-center">
+            <div className="p-[30px] max-w-[700px] w-[700px]">
+              <div className="w-full flex flex-row justify-end">
+                <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] w-[500px]">
+                  {link}
+                </p>
+              </div>
+              <div className="mt-[20px]">
+                {existingAnalysis ? (
+                  <Markdown>{analysis}</Markdown>
+                ) : (
+                  <Markdown>{completion}</Markdown>
+                )}
+              </div>
+              {chatLoading ? (
+                <p>Loading chat...</p>
+              ) : (
+                <div className="flex flex-col">
+                  <Chat id={chatId} initialMessages={messages} />
+                </div>
+              )}
+            </div>
           </div>
-          <div className="bg-[#101010] h-screen rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px] w-[1000px] overflow-y-auto">
-            {infoloading ? (
-              <p>Loading...</p>
-            ) : (
-              <>
-                <div className="flex flex-col ">
-                  <div className="flex flex-row items-center gap-[15px] bg-[#171717] rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
-                    <Image
-                      src={info.icon}
-                      alt={info.name}
-                      width={40}
-                      height={40}
-                    />
-                    {info && (
-                      <div className="font-medium text-[16px]">{info.name}</div>
-                    )}
-                  </div>
-                  <div className=" bg-[#171717] rounded-b-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
-                    <p className="font-medium text-[16px] text-[#B5B5B5]">
-                      About
-                    </p>
-                    {info && <ShowMore text={info.description} />}
-                  </div>
-                </div>
-                <div>
-                  <div>
-                    <p className="font-medium text-white text-[16px]">Found {review.length} reviews below 5 stars</p>
-                  </div>
-                  <div>
-                    {review && review.length > 0 ? (
-                      review.map((item, index) => (
-                        <div key={index}>
-                          <p>{item.text}</p>
-                          <p>{item.rating}</p>
-                          <p>{item.date}</p>
+          <div>
+            <div className="bg-[#101010] h-screen rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px] max-w-[1000px] overflow-y-auto">
+              {infoloading ? (
+                <p>Loading...</p>
+              ) : (
+                <>
+                  <div className="flex flex-col">
+                    <div className="flex flex-row items-center gap-[15px] bg-[#171717] rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
+                      <Image
+                        src={info.icon}
+                        alt={info.name}
+                        width={40}
+                        height={40}
+                      />
+                      {info && (
+                        <div className="font-medium text-[16px]">
+                          {info.name}
                         </div>
-                      ))
-                    ) : (
-                      <p>No reviews available</p>
-                    )}
+                      )}
+                    </div>
+                    <div className=" bg-[#171717] rounded-b-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
+                      <p className="font-medium text-[16px] text-[#B5B5B5]">
+                        About
+                      </p>
+                      {info && <ShowMore text={info.description} />}
+                    </div>
                   </div>
-                </div>
-              </>
-            )}
+                  <div className="flex flex-col mt-[20px]">
+                    <div className="bg-[#171717] rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
+                      <p className="font-medium text-white text-[16px]">
+                        Found {review.length} reviews below 5 stars
+                      </p>
+                    </div>
+                    <div className="bg-[#171717] rounded-b-[20px] outline-[1px] outline-[#2D2D2D] p-[20px] space-y-[20px]">
+                      {review && review.length > 0 ? (
+                        review.map((item, index) => (
+                          <div
+                            className="p-[20px] outline-[1px] outline-[#2D2D2D] bg-[#202020] rounded-[20px] space-y-[5px]"
+                            key={index}
+                          >
+                            <div>
+                              {item.rating == 4 ? (
+                                <div className="flex flex-row gap-[1px]">
+                                  <Image
+                                    src="/images/star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                </div>
+                              ) : item.rating == 3 ? (
+                                <div className="flex flex-row gap-[1px]">
+                                  <Image
+                                    src="/images/star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                </div>
+                              ) : item.rating == 2 ? (
+                                <div className="flex flex-row gap-[1px]">
+                                  <Image
+                                    src="/images/star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                </div>
+                              ) : item.rating == 1 ? (
+                                <div className="flex flex-row gap-[1px]">
+                                  <Image
+                                    src="/images/star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                </div>
+                              ) : item.rating == 0 ? (
+                                <div className="flex flex-row gap-[1px]">
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <Image
+                                    src="/images/empty-star.svg"
+                                    alt="star"
+                                    width={18}
+                                    height={18}
+                                  />
+                                </div>
+                              ) : (
+                                item.rating
+                              )}
+                            </div>
+                            <ShowMore text={item.text} />
+                            <p className="text-[#B5B5B5] font-normal text-[16px]">
+                              {item.date}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <p>No reviews available</p>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
