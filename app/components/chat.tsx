@@ -53,7 +53,7 @@ export default function Chat({
       // Not streaming or not assistant message
       setReasoning(false);
     }
-  }, [reasoning, messages, status]);
+  }, [messages]);
 
   // Track generation state
   useEffect(() => {
@@ -86,8 +86,8 @@ export default function Chat({
                   height={25}
                 />
                 <p className="font-medium text-[16px]">Bleep</p>
-                {/* Show reasoning indicator */}
-                {reasoning && (
+                {/* Show reasoning indicator only for the most recent AI message */}
+                {reasoning && messages.indexOf(m) === messages.length - 1 && (
                   <span className="text-yellow-500 text-sm">
                     🧠 Thinking...
                   </span>
@@ -97,8 +97,11 @@ export default function Chat({
                 {/* Show reasoning parts if they exist */}
                 {m.parts?.filter((part) => part.type === "reasoning").length >
                   0 && (
-                  <div className="flex flex-col p-[30px] bg-[#101010] outline-[1px] outline-[#2d2d2d] rounded-[20px] mb-[10px]">
-                    <div className="text-sm text-gray-400 mb-2">Reasoning:</div>
+                  <div className="flex flex-col p-[20px] bg-[#101010] outline-[1px] outline-[#2d2d2d] rounded-[20px] mb-[10px]">
+                    <div className="font-medium text-sm text-[#B5B5B5] mb-2">
+                      <span>Thoughts</span>
+                      
+                    </div>
                     {m.parts
                       ?.filter((part) => part.type === "reasoning")
                       .map((reasoningPart, index) => (
