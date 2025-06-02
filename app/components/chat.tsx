@@ -13,6 +13,7 @@ export default function Chat({
   const [isOpen, setIsOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [reasoning, setReasoning] = useState(false);
+  const [showReasoning, setShowReasoning] = useState(false);
 
   const { input, handleInputChange, handleSubmit, messages, status } = useChat({
     id, // use the provided chat ID
@@ -61,7 +62,7 @@ export default function Chat({
   }, [status]);
 
   return (
-    <div className="flex flex-col w-full pb-[200px] mx-auto stretch">
+    <div className="flex flex-col pb-[200px] mx-auto stretch">
       {/* Debug info - remove in production */}
       <div className="fixed top-4 right-4 bg-black/80 text-white p-2 rounded text-sm">
         Status: {status} | Reasoning: {reasoning.toString()} | Generating:{" "}
@@ -98,17 +99,47 @@ export default function Chat({
                 {m.parts?.filter((part) => part.type === "reasoning").length >
                   0 && (
                   <div className="flex flex-col p-[20px] bg-[#101010] outline-[1px] outline-[#2d2d2d] rounded-[20px] mb-[10px]">
-                    <div className="font-medium text-sm text-[#B5B5B5] mb-2">
+                    <button
+                      onClick={() => setShowReasoning(!showReasoning)}
+                      className="font-medium text-[14px] text-[#B5B5B5] mb-2 flex flex-row gap-[5px] items-center"
+                    >
                       <span>Thoughts</span>
-                      
-                    </div>
-                    {m.parts
-                      ?.filter((part) => part.type === "reasoning")
-                      .map((reasoningPart, index) => (
-                        <p key={index} className="text-sm text-gray-300">
-                          {reasoningPart.reasoning}
-                        </p>
-                      ))}
+                      <Image
+                        src="/images/thoughtsdropdown.svg"
+                        alt="thoughtsdropdown"
+                        width={5}
+                        height={11}
+                      />
+                    </button>
+                    {showReasoning && (
+                      <div>
+                        {m.parts
+                          ?.filter((part) => part.type === "reasoning")
+                          .map((reasoningPart, index) => (
+                            <p
+                              key={index}
+                              className="text-[14px] text-[#B5B5B5]"
+                            >
+                              {reasoningPart.reasoning}
+                            </p>
+                          ))}
+                      </div>
+                    )}
+                    {reasoning &&
+                      messages.indexOf(m) === messages.length - 1 && (
+                        <div>
+                          {m.parts
+                            ?.filter((part) => part.type === "reasoning")
+                            .map((reasoningPart, index) => (
+                              <p
+                                key={index}
+                                className="text-[14px] text-[#B5B5B5]"
+                              >
+                                {reasoningPart.reasoning}
+                              </p>
+                            ))}
+                        </div>
+                      )}
                   </div>
                 )}
 
