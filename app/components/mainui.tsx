@@ -58,7 +58,7 @@ export default function MainUI({
     updated_at: "",
   });
   const [review, setReviews] = useState<Review[]>([]);
-  const [analysis, setAnalysis] = useState();
+  const [analysis, setAnalysis] = useState<string>();
   const [chatId, setChatId] = useState<string>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [existingAnalysis, setExistingAnalysis] = useState(false);
@@ -255,40 +255,9 @@ export default function MainUI({
     <div className="w-full h-full flex flex-col items-center px-[10px] justify-center bg-black">
       <div className="rounded-t-[20px] outline-[1px] outline-[#2D2D2D] bg-[#070707] w-full h-screen mt-[10px]">
         <div className="flex flex-row justify-between gap-[5px]">
-          <div className="w-full flex flex-row justify-center  h-screen overflow-y-auto">
-            <div className="p-[30px] max-w-[800px] w-[800px]">
-              <div className="w-full flex flex-row justify-end">
-                <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px]">
-                  {link}
-                </p>
-              </div>
-              <div className="mt-[20px] space-y-[10px]">
-                <div className="flex flex-row items-center gap-[8px]">
-                  <Image
-                    src="/images/bleep.svg"
-                    alt="bleep"
-                    width={25}
-                    height={25}
-                  />
-                  <p className="font-medium text-[16px]">Bleep</p>
-                </div>
-                {existingAnalysis ? (
-                  <Markdown>{analysis}</Markdown>
-                ) : (
-                  <Markdown>{completion}</Markdown>
-                )}
-              </div>
-              {chatLoading ? (
-                <p>Loading chat...</p>
-              ) : (
-                <div className="flex flex-col">
-                  <Chat id={chatId} initialMessages={messages} />
-                </div>
-              )}
-            </div>
-          </div>
+          <Chat id={chatId} initialMessages={messages} link={link} analysis={analysis} completion={completion} existingAnalysis={existingAnalysis} chatLoading={chatLoading} />
           <div>
-            <div className="bg-[#101010] h-screen rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px] max-w-[1000px] overflow-y-auto">
+            <div className="bg-[#101010] h-screen rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px] max-w-[1000px] min-w-[500px] overflow-y-auto">
               {infoloading ? (
                 <p>Loading...</p>
               ) : (

@@ -9,7 +9,12 @@ import Image from "next/image";
 export default function Chat({
   id,
   initialMessages,
-}: { id?: string | undefined; initialMessages?: Message[] } = {}) {
+  link,
+  analysis,
+  completion,
+  existingAnalysis,
+  chatLoading,
+}: { id?: string | undefined; initialMessages?: Message[]; link?: string; analysis?: string; completion?: string; existingAnalysis?: boolean; chatLoading?: boolean } = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [reasoning, setReasoning] = useState(false);
@@ -62,13 +67,16 @@ export default function Chat({
   }, [status]);
 
   return (
-    <div className="flex flex-col pb-[200px] mx-auto stretch">
+    <div className="w-full flex flex-col pb-[200px] mx-auto stretch">
       {/* Debug info - remove in production */}
       <div className="fixed top-4 right-4 bg-black/80 text-white p-2 rounded text-sm">
         Status: {status} | Reasoning: {reasoning.toString()} | Generating:{" "}
         {isGenerating.toString()}
       </div>
-
+      {chatLoading ? (
+        <p>Loading chat...</p>
+      ) : (
+      <>
       {messages.map((m) => (
         <div key={m.id}>
           {m.role == "user" ? (
@@ -154,6 +162,8 @@ export default function Chat({
           )}
         </div>
       ))}
+      </>
+      )}
 
       <form onSubmit={handleSubmit}>
         <input
