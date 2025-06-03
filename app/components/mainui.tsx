@@ -62,53 +62,28 @@ export default function MainUI({
   const [existingAnalysis, setExistingAnalysis] = useState(false);
   const [infoloading, setInfoLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(true);
-  const [renderedLink, setRenderedLink] = useState<string | undefined>(undefined);
+  const [renderedLink, setRenderedLink] = useState<string | undefined>(
+    undefined,
+  );
   const [isLinkLoading, setIsLinkLoading] = useState(true);
-  const [isProjectConfirmed, setIsProjectConfirmed] = useState(false)
   const hasRun = useRef(false);
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
-
-    const checkSessionStorage = () => {
-      try {
-        const sessionData = JSON.parse(sessionStorage.getItem("link") || "{}");
-        const sessionLink = sessionData.link;
-        const sessionLinkId = sessionData.linkId;
-        if (slug === sessionLinkId) {
-          setRenderedLink(sessionLink);
-          setIsLinkLoading(false);
-        }
-      } catch (error) {
-        console.error("Error parsing session storage:", error);
-      }
-      return false;
-    }
-    const hasSessionData = checkSessionStorage();
-    
+    let projectId: string;
+    let gatheredInfo: Info;
+    let gatheredReview: Review[];
+    let varchatId: string;
     const sessionLink = JSON.parse(sessionStorage.getItem("link") || "{}").link;
-    const sessionLinkId = JSON.parse(sessionStorage.getItem("link") || "{}").linkId;
-    if (slug === sessionLinkId) {
+    const sessionLinkId = JSON.parse(
+      sessionStorage.getItem("link") || "{}",
+    ).linkId;
+    if (sessionLink) {
       setRenderedLink(sessionLink);
       setIsLinkLoading(false);
     }
     const fetchInfo = async () => {
-      let projectId: number;
-      let varchatId: string;
-      let gatheredInfo: Info;
-      let gatheredReview: Review[];
-      const confirmation = await fetch("/api/confrimation", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          slug: slug,
-          userId: userId,
-        }),
-      });
-      const confirmationData = await confirmation.json();
-      if (!confirmationData.confirmation.length && slug === sessionLinkId) {
+      if (sessionLink && slug === sessionLinkId) {
         const info = await fetch("/api/scrape_info", {
           method: "POST",
           headers: {
@@ -159,7 +134,9 @@ export default function MainUI({
         gatheredReview = reviewsData.fetchReviews;
         setReviews(reviewsData.fetchReviews);
         setInfoLoading(false);
-      } else {
+      }
+
+      if (!sessionLink) {
         const info = await fetch("/api/get_info", {
           method: "POST",
           headers: {
@@ -173,10 +150,8 @@ export default function MainUI({
         const infoData = await info.json();
         gatheredInfo = infoData.project;
         projectId = infoData.project.id;
-        if (link == undefined) {
-          setRenderedLink(infoData.project.extension_link);
-          setIsLinkLoading(false);
-        }
+        setRenderedLink(infoData.project.extension_link);
+        setIsLinkLoading(false);
         setInfo({
           ...infoData.project,
           name: infoData.project?.name || "",
@@ -280,9 +255,11 @@ export default function MainUI({
           },
         );
       }
+
+      sessionStorage.removeItem("link");
     };
     fetchInfo();
-  }, [slug, userId, link]);
+  }, [slug, userId]);
   return (
     <div className="w-full h-full flex flex-col items-center px-[10px] justify-center bg-black">
       <div className="rounded-t-[20px] outline-[1px] outline-[#2D2D2D] bg-[#070707] w-full h-screen mt-[10px]">

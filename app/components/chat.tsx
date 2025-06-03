@@ -33,16 +33,17 @@ export default function Chat({
   const [isChatDisabled, setIsChatDisabled] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  const { input, handleInputChange, handleSubmit, messages, status, stop } = useChat({
-    id, // use the provided chat ID
-    initialMessages, // initial messages if provided
-    sendExtraMessageFields: true, // send id and createdAt for each message
-    api: "/api/chat",
-    // only send the last message to the server:
-    experimental_prepareRequestBody({ messages, id }) {
-      return { message: messages[messages.length - 1], id };
-    },
-  });
+  const { input, handleInputChange, handleSubmit, messages, status, stop } =
+    useChat({
+      id, // use the provided chat ID
+      initialMessages, // initial messages if provided
+      sendExtraMessageFields: true, // send id and createdAt for each message
+      api: "/api/chat",
+      // only send the last message to the server:
+      experimental_prepareRequestBody({ messages, id }) {
+        return { message: messages[messages.length - 1], id };
+      },
+    });
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -211,7 +212,7 @@ export default function Chat({
                                 <div>
                                   {m.parts
                                     ?.filter(
-                                      (part) => part.type === "reasoning"
+                                      (part) => part.type === "reasoning",
                                     )
                                     .map((reasoningPart, index) => (
                                       <p
@@ -228,7 +229,7 @@ export default function Chat({
                                   <div>
                                     {m.parts
                                       ?.filter(
-                                        (part) => part.type === "reasoning"
+                                        (part) => part.type === "reasoning",
                                       )
                                       .map((reasoningPart, index) => (
                                         <p

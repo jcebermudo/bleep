@@ -76,7 +76,9 @@ export default async function Home() {
           </div>
         </div>
         <div className="mt-[30px] flex flex-col items-center">
-          <p className="text-[16px] font-medium m-[10px] text-[#B9B9B9] max-w-[468.47px] text-center">Made by James Bermudo</p>
+          <p className="text-[16px] font-medium m-[10px] text-[#B9B9B9] max-w-[468.47px] text-center">
+            Made by James Bermudo
+          </p>
         </div>
       </div>
     </div>

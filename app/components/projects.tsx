@@ -48,7 +48,9 @@ export default function Projects({ userId }: { userId: string | null }) {
                 width={50}
                 height={50}
               />
-              <h3 className="font-medium text-[16px] text-left">{project.name}</h3>
+              <h3 className="font-medium text-[16px] text-left">
+                {project.name}
+              </h3>
               <p className="text-[16px] font-medium text-[#B9B9B9] text-left">
                 {dayjs(project.actual_date_of_creation).fromNow()}
               </p>
