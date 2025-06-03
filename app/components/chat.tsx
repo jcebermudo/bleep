@@ -6,6 +6,7 @@ import { useEffect, useState, useRef } from "react";
 import { div, p, span } from "motion/react-client";
 import Markdown from "react-markdown";
 import Image from "next/image";
+import { motion } from "motion/react";
 
 export default function Chat({
   id,
@@ -29,7 +30,10 @@ export default function Chat({
   const [isOpen, setIsOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [reasoning, setReasoning] = useState(false);
-  const [showReasoning, setShowReasoning] = useState(false);
+  // Changed: Use object to track each message's dropdown state
+  const [showReasoning, setShowReasoning] = useState<{
+    [key: string]: boolean;
+  }>({});
   const [isChatDisabled, setIsChatDisabled] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -51,6 +55,18 @@ export default function Chat({
         chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (!chatLoading && chatContainerRef.current) {
+      // Use setTimeout to ensure DOM is fully rendered
+      setTimeout(() => {
+        if (chatContainerRef.current) {
+          chatContainerRef.current.scrollTop =
+            chatContainerRef.current.scrollHeight;
+        }
+      }, 100);
+    }
+  }, [chatLoading]);
 
   // Track reasoning state based on messages
   useEffect(() => {
@@ -90,6 +106,14 @@ export default function Chat({
     setIsGenerating(status === "streaming");
   }, [status, messages]);
 
+  // Helper function to toggle specific message dropdown
+  const toggleMessageReasoning = (messageId: string) => {
+    setShowReasoning((prev) => ({
+      ...prev,
+      [messageId]: !prev[messageId],
+    }));
+  };
+
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
       <div
@@ -106,56 +130,56 @@ export default function Chat({
             <p>Loading chat...</p>
           ) : (
             <div className="h-[calc(100vh-200px)]">
-            <div className="w-full flex flex-row justify-end mt-[20px]">
-              <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px]">
-                {link}
-              </p>
-            </div>
-            {completion == undefined && (
-              <div className="mt-[20px]">
-                <div className="flex flex-row items-center gap-[8px]">
-                  <Image
-                    src="/images/bleep.svg"
-                    alt="bleep"
-                    width={25}
-                    height={25}
-                  />
-                  <p className="font-medium text-[16px]">Thinking...</p>
-                </div>
+              <div className="w-full flex flex-row justify-end mt-[20px]">
+                <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px]">
+                  {link}
+                </p>
               </div>
-            )}
-            {existingAnalysis ? (
-              <div className="mt-[20px]">
-                <div className="flex flex-row items-center gap-[8px]">
-                  <Image
-                    src="/images/bleep.svg"
-                    alt="bleep"
-                    width={25}
-                    height={25}
-                  />
-                  <p className="font-medium text-[16px]">Bleep</p>
+              {completion == undefined && (
+                <div className="mt-[20px]">
+                  <div className="flex flex-row items-center gap-[8px]">
+                    <Image
+                      src="/images/bleep.svg"
+                      alt="bleep"
+                      width={25}
+                      height={25}
+                    />
+                    <p className="font-medium text-[16px]">Thinking...</p>
+                  </div>
                 </div>
-                <div className="mt-[10px]">
-                  <Markdown>{analysis}</Markdown>
+              )}
+              {existingAnalysis ? (
+                <div className="mt-[20px]">
+                  <div className="flex flex-row items-center gap-[8px]">
+                    <Image
+                      src="/images/bleep.svg"
+                      alt="bleep"
+                      width={25}
+                      height={25}
+                    />
+                    <p className="font-medium text-[16px]">Bleep</p>
+                  </div>
+                  <div className="mt-[10px]">
+                    <Markdown>{analysis}</Markdown>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="mt-[20px]">
-                <div className="flex flex-row items-center gap-[8px]">
-                  <Image
-                    src="/images/bleep.svg"
-                    alt="bleep"
-                    width={25}
-                    height={25}
-                  />
-                  <p className="font-medium text-[16px]">Bleep</p>
-                </div>
+              ) : (
+                <div className="mt-[20px]">
+                  <div className="flex flex-row items-center gap-[8px]">
+                    <Image
+                      src="/images/bleep.svg"
+                      alt="bleep"
+                      width={25}
+                      height={25}
+                    />
+                    <p className="font-medium text-[16px]">Bleep</p>
+                  </div>
 
-                <div className="mt-[10px]">
-                  <Markdown>{completion}</Markdown>
+                  <div className="mt-[10px]">
+                    <Markdown>{completion}</Markdown>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
               <div className="pb-[50px]">
                 {messages.map((m) => (
                   <div key={m.id}>
@@ -187,7 +211,7 @@ export default function Chat({
                             .length > 0 && (
                             <div className="flex flex-col mb-[10px]">
                               <button
-                                onClick={() => setShowReasoning(!showReasoning)}
+                                onClick={() => toggleMessageReasoning(m.id)}
                                 className="cursor-pointer mt-[10px] font-medium text-[#B5B5B5] flex flex-row gap-[5px] items-center"
                               >
                                 <span className="text-[16px]">Thoughts</span>
@@ -199,11 +223,11 @@ export default function Chat({
                                   height={11}
                                 />
                               </button>
-                              {showReasoning && (
+                              {showReasoning[m.id] && (
                                 <div>
                                   {m.parts
                                     ?.filter(
-                                      (part) => part.type === "reasoning",
+                                      (part) => part.type === "reasoning"
                                     )
                                     .map((reasoningPart, index) => (
                                       <p
@@ -217,10 +241,13 @@ export default function Chat({
                               )}
                               {reasoning &&
                                 messages.indexOf(m) === messages.length - 1 && (
-                                  <div>
+                                  <div
+                                    
+                                    className="overflow-hidden"
+                                  >
                                     {m.parts
                                       ?.filter(
-                                        (part) => part.type === "reasoning",
+                                        (part) => part.type === "reasoning"
                                       )
                                       .map((reasoningPart, index) => (
                                         <p
@@ -262,7 +289,7 @@ export default function Chat({
                   </div>
                 ) : null}
               </div>
-          </div>
+            </div>
           )}
         </div>
       </div>

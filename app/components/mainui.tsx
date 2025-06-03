@@ -8,6 +8,7 @@ import { div, p } from "motion/react-client";
 import Image from "next/image";
 import ShowMore from "./showmore";
 import Markdown from "react-markdown";
+import { motion } from "motion/react";
 
 interface Review {
   id: number;
@@ -269,7 +270,26 @@ export default function MainUI({
                 <p>Loading...</p>
               ) : (
                 <>
-                  <div className="flex flex-col">
+                  <motion.div
+                    initial={{
+                      opacity: 0,
+                      x: 200, // Start from bottom
+                    }}
+                    animate={{
+                      opacity: 1,
+                      x: 0, // Slide up to top
+                    }}
+                    transition={{
+                      opacity: { duration: 0.5 },
+                      x: {
+                        duration: 0.5,
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 20,
+                      }, // Duration for the slide up
+                    }}
+                    className="flex flex-col"
+                  >
                     <div className="flex flex-row items-center gap-[15px] bg-[#171717] rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
                       <Image
                         src={info.icon}
@@ -289,8 +309,28 @@ export default function MainUI({
                       </p>
                       {info && <ShowMore text={info.description} />}
                     </div>
-                  </div>
-                  <div className="flex flex-col mt-[20px]">
+                  </motion.div>
+                  <motion.div
+                    initial={{
+                      opacity: 0,
+                      x: 200, // Start from bottom
+                    }}
+                    animate={{
+                      opacity: 1,
+                      x: 0, // Slide up to top
+                    }}
+                    transition={{
+                      opacity: { duration: 0.5 },
+                      x: {
+                        duration: 0.5,
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 20,
+                        delay: 0.1,
+                      }, // Duration for the slide up
+                    }}
+                    className="flex flex-col mt-[20px]"
+                  >
                     <div className="bg-[#171717] rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
                       <p className="font-medium text-white text-[16px]">
                         Found {review.length} reviews below 5 stars
@@ -483,7 +523,7 @@ export default function MainUI({
                         <p>No reviews available</p>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 </>
               )}
             </div>
