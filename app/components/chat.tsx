@@ -93,7 +93,7 @@ export default function Chat({
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
       <div
-        className="w-full flex flex-row justify-center items-center px-[30px] overflow-y-auto"
+        className="w-full h-screen flex flex-row justify-center items-center px-[30px] overflow-y-auto"
         ref={chatContainerRef}
       >
         <div className="flex flex-col mx-auto w-full max-w-[700px]">
@@ -102,21 +102,16 @@ export default function Chat({
             Status: {status} | Reasoning: {reasoning.toString()} | Generating:{" "}
             {isGenerating.toString()}
           </div>
-          <div className="h-[calc(100vh-200px)]">
-            {isLinkLoading ? (
-              <div className="w-full flex flex-row justify-end mt-[20px]">
-                <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px]">
-                  loading link
-                </p>
-              </div>
-            ) : (
-              <div className="w-full flex flex-row justify-end mt-[20px]">
-                <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px]">
-                  {link}
-                </p>
-              </div>
-            )}
-            {!isLinkLoading && !existingAnalysis && (
+          {chatLoading ? (
+            <p>Loading chat...</p>
+          ) : (
+            <div className="h-[calc(100vh-200px)]">
+            <div className="w-full flex flex-row justify-end mt-[20px]">
+              <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px]">
+                {link}
+              </p>
+            </div>
+            {completion == undefined && (
               <div className="mt-[20px]">
                 <div className="flex flex-row items-center gap-[8px]">
                   <Image
@@ -140,7 +135,6 @@ export default function Chat({
                   />
                   <p className="font-medium text-[16px]">Bleep</p>
                 </div>
-
                 <div className="mt-[10px]">
                   <Markdown>{analysis}</Markdown>
                 </div>
@@ -162,9 +156,6 @@ export default function Chat({
                 </div>
               </div>
             )}
-            {chatLoading ? (
-              <p>Loading chat...</p>
-            ) : (
               <div className="pb-[50px]">
                 {messages.map((m) => (
                   <div key={m.id}>
@@ -271,17 +262,17 @@ export default function Chat({
                   </div>
                 ) : null}
               </div>
-            )}
           </div>
+          )}
         </div>
       </div>
-      <div className="w-full flex flex-col justify-center items-center px-[20px] pb-[20px]">
+      <div className="w-full flex flex-col justify-center items-center px-[20px]">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit(e);
           }}
-          className="w-full max-w-[750px] bg-[#171717] rounded-[20px] p-[15px]"
+          className="w-full max-w-[750px] bg-[#171717] rounded-[20px] p-[15px] mb-[50px]"
         >
           <textarea
             className="resize-none font-normal outline-none focus:outline-none text-white placeholder:text-[#B5B5B5] placeholder:font-normal placeholder:text-[16px] w-full pr-8 h-[50px]"

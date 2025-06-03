@@ -227,7 +227,6 @@ export default function MainUI({
         });
         const getmessagesData = await getmessages.json();
         setMessages(getmessagesData.chatmessages);
-        setChatLoading(false);
       }
 
       if (!sessionLink) {
@@ -243,6 +242,7 @@ export default function MainUI({
         const getanalysisData = await getanalysis.json();
         setAnalysis(getanalysisData.analysis);
         setExistingAnalysis(true);
+        setChatLoading(false);
       }
 
       sessionStorage.removeItem("link");
