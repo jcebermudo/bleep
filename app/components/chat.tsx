@@ -241,22 +241,23 @@ export default function Chat({
                               )}
                               {reasoning &&
                                 messages.indexOf(m) === messages.length - 1 && (
-                                  <div
+                                  <div>
+                                    <div className="overflow-hidden">
+                                      {m.parts
+                                        ?.filter(
+                                          (part) => part.type === "reasoning"
+                                        )
+                                        .map((reasoningPart, index) => (
+                                          <p
+                                            key={index}
+                                            className="text-[14px] text-[#B5B5B5]"
+                                          >
+                                            {reasoningPart.reasoning}
+                                          </p>
+                                        ))}
+                                    </div>
+
                                     
-                                    className="overflow-hidden"
-                                  >
-                                    {m.parts
-                                      ?.filter(
-                                        (part) => part.type === "reasoning"
-                                      )
-                                      .map((reasoningPart, index) => (
-                                        <p
-                                          key={index}
-                                          className="text-[14px] text-[#B5B5B5]"
-                                        >
-                                          {reasoningPart.reasoning}
-                                        </p>
-                                      ))}
                                   </div>
                                 )}
                             </div>
