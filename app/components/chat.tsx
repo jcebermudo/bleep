@@ -4,15 +4,15 @@ import React from "react";
 import { Message, useChat } from "@ai-sdk/react";
 import { useEffect, useState, useRef } from "react";
 import { div, p, span } from "motion/react-client";
-import Markdown from "react-markdown";
+import ReactMarkdown from "react-markdown";
 import Image from "next/image";
 import { motion } from "motion/react";
+import ThinkingDropdown from "./thinking-dropdown";
 
 export default function Chat({
   id,
   initialMessages,
   link,
-  isLinkLoading,
   analysis,
   completion,
   existingAnalysis,
@@ -27,7 +27,6 @@ export default function Chat({
   existingAnalysis?: boolean;
   chatLoading?: boolean;
 } = {}) {
-  const [isOpen, setIsOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [reasoning, setReasoning] = useState(false);
   // Changed: Use object to track each message's dropdown state
@@ -68,43 +67,10 @@ export default function Chat({
     }
   }, [chatLoading]);
 
-  // Track reasoning state based on messages
-  useEffect(() => {
-    if (status != "streaming") {
-      return;
-    }
-    if (messages.length === 0 || status !== "streaming") {
-      setReasoning(false);
-      return;
-    }
-
-    const lastMessage = messages[messages.length - 1];
-
-    // If the last message is from assistant and currently streaming
-    if (lastMessage.role != "user" && status === "streaming") {
-      const hasReasoningParts = lastMessage.parts?.some(
-        (part) => part.type === "reasoning",
-      );
-      const hasContent =
-        lastMessage.content && lastMessage.content.trim().length > 0;
-
-      if (hasReasoningParts && !hasContent) {
-        // Has reasoning but no content yet = currently reasoning
-        setReasoning(true);
-      } else if (hasContent) {
-        // Has content = moved to response generation
-        setReasoning(false);
-      }
-    } else {
-      // Not streaming or not assistant message
-      setReasoning(false);
-    }
-  }, [messages]);
-
   // Track generation state
   useEffect(() => {
     setIsGenerating(status === "streaming");
-  }, [status, messages]);
+  }, [status]);
 
   // Helper function to toggle specific message dropdown
   const toggleMessageReasoning = (messageId: string) => {
@@ -160,7 +126,7 @@ export default function Chat({
                     <p className="font-medium text-[16px]">Bleep</p>
                   </div>
                   <div className="mt-[10px]">
-                    <Markdown>{analysis}</Markdown>
+                    <ReactMarkdown>{analysis}</ReactMarkdown>
                   </div>
                 </div>
               ) : (
@@ -176,7 +142,7 @@ export default function Chat({
                   </div>
 
                   <div className="mt-[10px]">
-                    <Markdown>{completion}</Markdown>
+                    <ReactMarkdown>{completion}</ReactMarkdown>
                   </div>
                 </div>
               )}
@@ -209,63 +175,103 @@ export default function Chat({
                           {/* Show reasoning parts if they exist */}
                           {m.parts?.filter((part) => part.type === "reasoning")
                             .length > 0 && (
-                            <div className="flex flex-col mb-[10px]">
-                              <button
-                                onClick={() => toggleMessageReasoning(m.id)}
-                                className="cursor-pointer mt-[10px] font-medium text-[#B5B5B5] flex flex-row gap-[5px] items-center"
-                              >
-                                <span className="text-[16px]">Thoughts</span>
-                                <Image
-                                  className="mt-[3px]"
-                                  src="/images/thoughtsdropdown.svg"
-                                  alt="thoughtsdropdown"
-                                  width={8}
-                                  height={11}
-                                />
-                              </button>
-                              {showReasoning[m.id] && (
-                                <div>
-                                  {m.parts
-                                    ?.filter(
-                                      (part) => part.type === "reasoning"
-                                    )
-                                    .map((reasoningPart, index) => (
-                                      <p
-                                        key={index}
-                                        className="text-[14px] text-[#B5B5B5] mt-[10px]"
-                                      >
-                                        {reasoningPart.reasoning}
-                                      </p>
-                                    ))}
-                                </div>
-                              )}
-                              {reasoning &&
-                                messages.indexOf(m) === messages.length - 1 && (
-                                  <div
-                                    
-                                    className="overflow-hidden"
+                            <div>
+                              {m.parts
+                                ?.filter((part) => part.type === "reasoning")
+                                .map((reasoningPart, index) => (
+                                  <ThinkingDropdown
+                                    key={index}
+                                    title="Thoughts"
+                                    isOpen={
+                                      showReasoning[m.id] ||
+                                      (status === "streaming" &&
+                                        messages.length > 0 &&
+                                        messages[messages.length - 1].role !==
+                                          "user" &&
+                                        messages[
+                                          messages.length - 1
+                                        ].parts?.some(
+                                          (part) => part.type === "reasoning"
+                                        ) &&
+                                        !(
+                                          messages[
+                                            messages.length - 1
+                                          ].content?.trim().length > 0
+                                        ))
+                                    }
+                                    onToggle={() =>
+                                      toggleMessageReasoning(m.id)
+                                    }
                                   >
-                                    {m.parts
-                                      ?.filter(
-                                        (part) => part.type === "reasoning"
-                                      )
-                                      .map((reasoningPart, index) => (
-                                        <p
-                                          key={index}
-                                          className="text-[14px] text-[#B5B5B5]"
-                                        >
-                                          {reasoningPart.reasoning}
-                                        </p>
-                                      ))}
-                                  </div>
-                                )}
+                                    {reasoningPart.reasoning}
+                                  </ThinkingDropdown>
+                                ))}
                             </div>
                           )}
 
                           {/* Show main response content */}
                           {m.content && (
-                            <div className="">
-                              <Markdown>{m.content}</Markdown>
+                            <div className="mt-[10px]">
+                              <ReactMarkdown
+                                components={{
+                                  p: (props) => (
+                                    <p
+                                      className="text-[16px] font-normal text-white"
+                                      {...props}
+                                    />
+                                  ),
+                                  hr: (props) => (
+                                    <hr
+                                      className="border-[#303030] my-[20px]"
+                                      {...props}
+                                    />
+                                  ),
+                                  h1: (props) => (
+                                    <h1
+                                      className="text-[24px] font-medium text-white mb-[10px]"
+                                      {...props}
+                                    />
+                                  ),
+                                  h2: (props) => (
+                                    <h2
+                                      className="text-[20px] font-medium text-white mb-[10px]"
+                                      {...props}
+                                    />
+                                  ),
+                                  h3: (props) => (
+                                    <h3
+                                      className="text-[18px] font-medium text-white mb-[10px]"
+                                      {...props}
+                                    />
+                                  ),
+                                  h4: (props) => (
+                                    <h4
+                                      className="text-[16px] font-medium text-white mb-[10px]"
+                                      {...props}
+                                    />
+                                  ),
+                                  h5: (props) => (
+                                    <h5
+                                      className="text-[14px] font-medium text-white mb-[10px]"
+                                      {...props}
+                                    />
+                                  ),
+                                  h6: (props) => (
+                                    <h6
+                                      className="text-[12px] font-medium text-white mb-[10px]"
+                                      {...props}
+                                    />
+                                  ),
+                                  li: (props) => (
+                                    <li
+                                      className="text-[16px] font-normal text-white mb-[10px]"
+                                      {...props}
+                                    />
+                                  ),
+                                }}
+                              >
+                                {m.content}
+                              </ReactMarkdown>
                             </div>
                           )}
                         </div>
