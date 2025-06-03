@@ -3,7 +3,7 @@ import Link from "./components/link";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Projects from "./components/projects";
-import Image from "next/image"
+import Image from "next/image";
 import * as motion from "motion/react-client";
 import User from "./components/user";
 
@@ -24,30 +24,35 @@ export default async function Home() {
           height={26.2}
         />
         <div className="flex flex-row items-center">
-          <User userId={data.user.id} avatar_url={data.user.user_metadata.avatar_url} name={data.user.user_metadata.name} email={data.user.user_metadata.email} />
+          <User
+            userId={data.user.id}
+            avatar_url={data.user.user_metadata.avatar_url}
+            name={data.user.user_metadata.name}
+            email={data.user.user_metadata.email}
+          />
         </div>
       </div>
       <div className="rounded-t-[20px] outline-[1px] outline-[#2D2D2D] bg-[#070707] w-full h-screen overflow-y-auto mt-[10px]">
         <div className="flex flex-col items-center mt-[100px]">
           <div className="relative">
-              <motion.div
-        className="select-none absolute translate-x-[120%] translate-y-[40%]"
-        animate={{
-          y: [-8, 8, -8],
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      >
-        <Image
-          src="/images/puzzle.svg"
-          alt="puzzle"
-          width={216.38}
-          height={166.04}
-        />
-      </motion.div>
+            <motion.div
+              className="select-none absolute translate-x-[120%] translate-y-[40%]"
+              animate={{
+                y: [-8, 8, -8],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              <Image
+                src="/images/puzzle.svg"
+                alt="puzzle"
+                width={216.38}
+                height={166.04}
+              />
+            </motion.div>
             <Image
               className="select-none"
               src="/images/graph-website.svg"

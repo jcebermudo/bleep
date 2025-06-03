@@ -6,7 +6,7 @@ import Chat from "./chat";
 import { useCompletion } from "@ai-sdk/react";
 import { div, p } from "motion/react-client";
 import Image from "next/image";
-import ShowMore from "./showmore"
+import ShowMore from "./showmore";
 import Markdown from "react-markdown";
 
 interface Review {
@@ -64,10 +64,16 @@ export default function MainUI({
   const [existingAnalysis, setExistingAnalysis] = useState(false);
   const [infoloading, setInfoLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(true);
+  const [renderedLink, setRenderedLink] = useState<string | undefined>(link);
+  const [isLinkLoading, setIsLinkLoading] = useState(true);
   const hasRun = useRef(false);
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
+    if (link != undefined) {
+      setRenderedLink(link);
+      setIsLinkLoading(false);
+    }
     const fetchInfo = async () => {
       let projectId: number;
       let varchatId: string;
@@ -144,6 +150,10 @@ export default function MainUI({
         });
         const infoData = await info.json();
         projectId = infoData.project.id;
+        if (link == undefined) {
+          setRenderedLink(infoData.project.extension_link);
+          setIsLinkLoading(false);
+        }
         setInfo({
           ...infoData.project,
           name: infoData.project?.name || "",
@@ -255,7 +265,16 @@ export default function MainUI({
     <div className="w-full h-full flex flex-col items-center px-[10px] justify-center bg-black">
       <div className="rounded-t-[20px] outline-[1px] outline-[#2D2D2D] bg-[#070707] w-full h-screen mt-[10px]">
         <div className="flex flex-row justify-between gap-[5px]">
-          <Chat id={chatId} initialMessages={messages} link={link} analysis={analysis} completion={completion} existingAnalysis={existingAnalysis} chatLoading={chatLoading} />
+          <Chat
+            id={chatId}
+            initialMessages={messages}
+            link={renderedLink}
+            isLinkLoading={isLinkLoading}
+            analysis={analysis}
+            completion={completion}
+            existingAnalysis={existingAnalysis}
+            chatLoading={chatLoading}
+          />
           <div>
             <div className="bg-[#101010] h-screen rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px] max-w-[1000px] min-w-[500px] overflow-y-auto">
               {infoloading ? (

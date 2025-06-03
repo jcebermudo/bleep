@@ -9,7 +9,8 @@ export async function POST(request: Request) {
     const projects = await db
       .select()
       .from(project)
-      .where(eq(project.user_uuid, userId)).orderBy(desc(project.created_at));
+      .where(eq(project.user_uuid, userId))
+      .orderBy(desc(project.created_at));
     return NextResponse.json({ projects });
   } catch {
     return NextResponse.json(
