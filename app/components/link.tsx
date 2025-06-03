@@ -113,6 +113,12 @@ export default function Link({ userId }: { userId: string | null }) {
             name="link"
             value={inputValue}
             onChange={handleInputChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                gotoProject(e as any);
+              }
+            }}
             onInput={handleInputChange}
             autoComplete="off"
             placeholder="Paste Chrome webstore link here"
@@ -143,7 +149,7 @@ export default function Link({ userId }: { userId: string | null }) {
           className="flex flex-row items-center gap-2 cursor-pointer bg-[#171717] py-[10px] px-[20px] rounded-full outline-[1px] outline-[#2D2D2D]"
           onClick={() =>
             setInputValueWithResize(
-              "https://chromewebstore.google.com/detail/grammarly-ai-writing-and/kbfnbcaeplbcioakkpcpgfkobkghlhen",
+              "https://chromewebstore.google.com/detail/grammarly-ai-writing-and/kbfnbcaeplbcioakkpcpgfkobkghlhen"
             )
           }
         >
@@ -159,7 +165,7 @@ export default function Link({ userId }: { userId: string | null }) {
           className="flex flex-row items-center gap-2 cursor-pointer bg-[#171717] py-[10px] px-[20px] rounded-full outline-[1px] outline-[#2D2D2D]"
           onClick={() =>
             setInputValueWithResize(
-              "https://chromewebstore.google.com/detail/lighthouse/blipmdconlkpinefehnmjammfjpmpbjk",
+              "https://chromewebstore.google.com/detail/lighthouse/blipmdconlkpinefehnmjammfjpmpbjk"
             )
           }
         >
@@ -175,7 +181,7 @@ export default function Link({ userId }: { userId: string | null }) {
           className="flex flex-row items-center gap-2 cursor-pointer bg-[#171717] py-[10px] px-[20px] rounded-full outline-[1px] outline-[#2D2D2D]"
           onClick={() =>
             setInputValueWithResize(
-              "https://chromewebstore.google.com/detail/website-seo-checker/nljcdkjpjnhlilgepggmmagnmebhadnk",
+              "https://chromewebstore.google.com/detail/website-seo-checker/nljcdkjpjnhlilgepggmmagnmebhadnk"
             )
           }
         >

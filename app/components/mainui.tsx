@@ -77,6 +77,8 @@ export default function MainUI({
     const fetchInfo = async () => {
       let projectId: number;
       let varchatId: string;
+      let gatheredInfo: Info;
+      let gatheredReview: Review[];
       const confirmation = await fetch("/api/confrimation", {
         method: "POST",
         headers: {
@@ -99,6 +101,7 @@ export default function MainUI({
           }),
         });
         const infoData = await info.json();
+        gatheredInfo = infoData.info;
         setInfo({
           ...infoData.info,
           name: infoData.info?.name || "",
@@ -135,6 +138,7 @@ export default function MainUI({
           }),
         });
         const reviewsData = await reviews.json();
+        gatheredReview = reviewsData.fetchReviews;
         setReviews(reviewsData.fetchReviews);
         setInfoLoading(false);
       } else {
@@ -149,6 +153,7 @@ export default function MainUI({
           }),
         });
         const infoData = await info.json();
+        gatheredInfo = infoData.project;
         projectId = infoData.project.id;
         if (link == undefined) {
           setRenderedLink(infoData.project.extension_link);
@@ -164,6 +169,7 @@ export default function MainUI({
           created_at: infoData.project?.created_at,
           updated_at: infoData.project?.updated_at,
         });
+        gatheredReview = infoData.reviews;
         setReviews(infoData.reviews);
         setInfoLoading(false);
       }
@@ -248,9 +254,7 @@ export default function MainUI({
 
       if (getanalysisData.analysis === null) {
         complete(
-          `generate an analysis from this: ${info.name} ${
-            info.description
-          } ${review.map((item) => item.text).join(" ")}`,
+          `Generate a comprehensive Chrome extension analysis from this and generate an extension idea from the gaps that are found. The extension is: ${gatheredInfo.name}. The description is: ${gatheredInfo.description}. The reviews are: ${gatheredReview.map((item) => item.text).join(" ")}.`,
           {
             body: {
               projectId: projectId,

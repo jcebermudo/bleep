@@ -63,7 +63,7 @@ async function getLowRatedReviews(link: string) {
     const noofShow = showMoreExists.length;
     if (noofShow > 0) {
       for (let i = 0; i < noofShow; i++) {
-        await page.waitForSelector('[jsname="JrM82d"]', { visible: true });
+        await page.waitForSelector('[jsname="JrM82d"]', { visible: true, hidden: false });
         await page.locator('[jsname="JrM82d"]').click();
         await setTimeout(1000);
         attempshow++;

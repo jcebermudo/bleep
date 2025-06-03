@@ -28,12 +28,12 @@ body {
 /* width */
 ::-webkit-scrollbar {
   width: 5px;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #070707;
+  background: #07070700;
   margin-top: 20px;
 }
 
