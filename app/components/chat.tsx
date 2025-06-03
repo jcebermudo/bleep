@@ -175,56 +175,37 @@ export default function Chat({
                           {/* Show reasoning parts if they exist */}
                           {m.parts?.filter((part) => part.type === "reasoning")
                             .length > 0 && (
-                            <div className="flex flex-col mb-[10px]">
-                              <button
-                                onClick={() => toggleMessageReasoning(m.id)}
-                                className="cursor-pointer mt-[10px] font-medium text-[#B5B5B5] flex flex-row gap-[5px] items-center"
-                              >
-                                <span className="text-[16px]">Thoughts</span>
-                                <Image
-                                  className="mt-[3px]"
-                                  src="/images/thoughtsdropdown.svg"
-                                  alt="thoughtsdropdown"
-                                  width={8}
-                                  height={11}
-                                />
-                              </button>
-                              {showReasoning[m.id] && (
-                                <div>
-                                  {m.parts
-                                    ?.filter(
-                                      (part) => part.type === "reasoning"
-                                    )
-                                    .map((reasoningPart, index) => (
-                                      <p
-                                        key={index}
-                                        className="text-[14px] text-[#B5B5B5] mt-[10px]"
-                                      >
-                                        {reasoningPart.reasoning}
-                                      </p>
-                                    ))}
-                                </div>
-                              )}
-                              {reasoning &&
-                                messages.indexOf(m) === messages.length - 1 && (
-                                  <div
-                                    
-                                    className="overflow-hidden"
+                            <div>
+                              {m.parts
+                                ?.filter((part) => part.type === "reasoning")
+                                .map((reasoningPart, index) => (
+                                  <ThinkingDropdown
+                                    key={index}
+                                    title="Thoughts"
+                                    isOpen={
+                                      showReasoning[m.id] ||
+                                      (status === "streaming" &&
+                                        messages.length > 0 &&
+                                        messages[messages.length - 1].role !==
+                                          "user" &&
+                                        messages[
+                                          messages.length - 1
+                                        ].parts?.some(
+                                          (part) => part.type === "reasoning"
+                                        ) &&
+                                        !(
+                                          messages[
+                                            messages.length - 1
+                                          ].content?.trim().length > 0
+                                        ))
+                                    }
+                                    onToggle={() =>
+                                      toggleMessageReasoning(m.id)
+                                    }
                                   >
-                                    {m.parts
-                                      ?.filter(
-                                        (part) => part.type === "reasoning"
-                                      )
-                                      .map((reasoningPart, index) => (
-                                        <p
-                                          key={index}
-                                          className="text-[14px] text-[#B5B5B5]"
-                                        >
-                                          {reasoningPart.reasoning}
-                                        </p>
-                                      ))}
-                                  </div>
-                                )}
+                                    {reasoningPart.reasoning}
+                                  </ThinkingDropdown>
+                                ))}
                             </div>
                           )}
 
