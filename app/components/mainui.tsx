@@ -36,11 +36,9 @@ interface Info {
 export default function MainUI({
   slug,
   userId,
-  link,
 }: {
   slug: string;
   userId: string;
-  link?: string;
 }) {
   const { completion, complete } = useCompletion({
     api: "/api/completion",
@@ -64,14 +62,16 @@ export default function MainUI({
   const [existingAnalysis, setExistingAnalysis] = useState(false);
   const [infoloading, setInfoLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(true);
-  const [renderedLink, setRenderedLink] = useState<string | undefined>(link);
+  const [renderedLink, setRenderedLink] = useState<string | undefined>(undefined);
   const [isLinkLoading, setIsLinkLoading] = useState(true);
   const hasRun = useRef(false);
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
-    if (link != undefined) {
-      setRenderedLink(link);
+    const sessionLink = JSON.parse(sessionStorage.getItem("link") || "{}").link;
+    const sessionLinkId = JSON.parse(sessionStorage.getItem("link") || "{}").linkId;
+    if (slug === sessionLinkId) {
+      setRenderedLink(sessionLink);
       setIsLinkLoading(false);
     }
     const fetchInfo = async () => {
@@ -90,14 +90,14 @@ export default function MainUI({
         }),
       });
       const confirmationData = await confirmation.json();
-      if (!confirmationData.confirmation.length) {
+      if (!confirmationData.confirmation.length && slug === sessionLinkId) {
         const info = await fetch("/api/scrape_info", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            link: link,
+            link: sessionLink,
           }),
         });
         const infoData = await info.json();
@@ -117,9 +117,9 @@ export default function MainUI({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            linkId: slug,
+            linkId: sessionLinkId,
             userId: userId,
-            link: link,
+            link: sessionLink,
             name: infoData.info.name,
             icon: infoData.info.icon,
             description: infoData.info.description,
@@ -133,7 +133,7 @@ export default function MainUI({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            link: link,
+            link: sessionLink,
             projectId: projectId,
           }),
         });

@@ -92,8 +92,13 @@ export default function Link({ userId }: { userId: string | null }) {
       ? inputValue
       : `https://${inputValue}`;
 
+    sessionStorage.setItem("link", JSON.stringify({
+      link: link,
+      linkId: linkId,
+    }))
+
     await router.push(
-      `/${linkId}?process=true&link=${encodeURIComponent(link)}`,
+      `/${linkId}`,
     );
   };
 
