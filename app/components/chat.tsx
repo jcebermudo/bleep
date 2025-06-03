@@ -9,6 +9,21 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import ThinkingDropdown from "./thinking-dropdown";
 
+const styles = `
+  @keyframes ellipsis {
+    0% { content: '.'; }
+    33% { content: '..'; }
+    66% { content: '...'; }
+  }
+  .thinking-text::after {
+    content: '...';
+    animation: ellipsis 1.5s infinite;
+    display: inline-block;
+    width: 1.5em;
+    text-align: left;
+  }
+`;
+
 export default function Chat({
   id,
   initialMessages,
@@ -46,13 +61,16 @@ export default function Chat({
       experimental_prepareRequestBody({ messages, id }) {
         return { message: messages[messages.length - 1], id };
       },
+      experimental_throttle: 50,
     });
 
   useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop =
-        chatContainerRef.current.scrollHeight;
-    }
+    setTimeout(() => {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop =
+          chatContainerRef.current.scrollHeight;
+      }
+    }, 100);
   }, [messages]);
 
   useEffect(() => {
@@ -110,7 +128,10 @@ export default function Chat({
                       width={25}
                       height={25}
                     />
-                    <p className="font-medium text-[16px]">Thinking...</p>
+                    <p className="font-medium text-[16px] flex items-center">
+                      Thinking<span className="thinking-text"></span>
+                      <style jsx>{styles}</style>
+                    </p>
                   </div>
                 </div>
               )}
@@ -138,7 +159,23 @@ export default function Chat({
                       width={25}
                       height={25}
                     />
-                    <p className="font-medium text-[16px]">Bleep</p>
+
+                    {status === "streaming" &&
+                    messages.length > 0 &&
+                    messages[messages.length - 1].role !== "user" &&
+                    messages[messages.length - 1].parts?.some(
+                      (part) => part.type === "reasoning"
+                    ) &&
+                    !(
+                      messages[messages.length - 1].content?.trim().length > 0
+                    ) ? (
+                      <p className="font-medium text-[16px] flex items-center">
+                        Thinking<span className="thinking-text"></span>
+                        <style jsx>{styles}</style>
+                      </p>
+                    ) : (
+                      <p className="font-medium text-[16px]">Bleep</p>
+                    )}
                   </div>
 
                   <div className="mt-[10px]">
@@ -164,12 +201,23 @@ export default function Chat({
                             width={25}
                             height={25}
                           />
-                          <p className="font-medium text-[16px]">
-                            Bleep{" "}
-                            {status == "streaming" && (
-                              <span> is thinking...</span>
-                            )}
-                          </p>
+                          {(status === "streaming" &&
+                          messages.length > 0 &&
+                          messages[messages.length - 1].role !== "user" &&
+                          messages[messages.length - 1].parts?.some(
+                            (part) => part.type === "reasoning"
+                          ) &&
+                          !(
+                            messages[messages.length - 1].content?.trim()
+                              .length > 0
+                          )) ? (
+                            <p className="font-medium text-[16px] flex items-center">
+                              Thinking<span className="thinking-text"></span>
+                              <style jsx>{styles}</style>
+                            </p>
+                          ) : (
+                            <p className="font-medium text-[16px]">Bleep</p>
+                          )}
                         </div>
                         <div className="mt-[10px]">
                           {/* Show reasoning parts if they exist */}
@@ -288,8 +336,9 @@ export default function Chat({
                         width={25}
                         height={25}
                       />
-                      <p className="font-medium text-[16px]">
-                        Bleep is thinking...
+                      <p className="font-medium text-[16px] flex items-center">
+                        Thinking<span className="thinking-text"></span>
+                        <style jsx>{styles}</style>
                       </p>
                     </div>
                   </div>
