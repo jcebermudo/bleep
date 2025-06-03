@@ -64,10 +64,28 @@ export default function MainUI({
   const [chatLoading, setChatLoading] = useState(true);
   const [renderedLink, setRenderedLink] = useState<string | undefined>(undefined);
   const [isLinkLoading, setIsLinkLoading] = useState(true);
+  const [isProjectConfirmed, setIsProjectConfirmed] = useState(false)
   const hasRun = useRef(false);
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
+
+    const checkSessionStorage = () => {
+      try {
+        const sessionData = JSON.parse(sessionStorage.getItem("link") || "{}");
+        const sessionLink = sessionData.link;
+        const sessionLinkId = sessionData.linkId;
+        if (slug === sessionLinkId) {
+          setRenderedLink(sessionLink);
+          setIsLinkLoading(false);
+        }
+      } catch (error) {
+        console.error("Error parsing session storage:", error);
+      }
+      return false;
+    }
+    const hasSessionData = checkSessionStorage();
+    
     const sessionLink = JSON.parse(sessionStorage.getItem("link") || "{}").link;
     const sessionLinkId = JSON.parse(sessionStorage.getItem("link") || "{}").linkId;
     if (slug === sessionLinkId) {

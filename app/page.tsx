@@ -14,7 +14,7 @@ export default async function Home() {
     redirect("/login");
   }
   return (
-    <div className="w-full h-full flex flex-col items-center px-[10px] justify-center bg-black">
+    <div className="w-full h-screen flex flex-col items-center px-[10px] justify-center bg-black">
       <div className="w-full flex flex-row justify-between items-center mt-[10px]">
         <Image
           className="select-none"
@@ -32,7 +32,7 @@ export default async function Home() {
           />
         </div>
       </div>
-      <div className="rounded-t-[20px] outline-[1px] outline-[#2D2D2D] bg-[#070707] w-full h-screen overflow-y-auto mt-[10px]">
+      <div className="rounded-t-[20px] outline-[1px] outline-[#2D2D2D] bg-[#070707] w-full h-screen overflow-y-auto pb-[50px] mt-[10px]">
         <div className="flex flex-col items-center mt-[100px]">
           <div className="relative">
             <motion.div
@@ -74,6 +74,9 @@ export default async function Home() {
           <div className="mt-[30px] flex flex-col items-center">
             <Projects userId={data.user.id} />
           </div>
+        </div>
+        <div className="mt-[30px] flex flex-col items-center">
+          <p className="text-[16px] font-medium m-[10px] text-[#B9B9B9] max-w-[468.47px] text-center">Made by James Bermudo</p>
         </div>
       </div>
     </div>
