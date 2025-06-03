@@ -62,6 +62,7 @@ export default function MainUI({
   const [existingAnalysis, setExistingAnalysis] = useState(false);
   const [infoloading, setInfoLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(true);
+  const [projectExists, setProjectExists] = useState(false);
   const [renderedLink, setRenderedLink] = useState<string | undefined>(
     undefined,
   );
@@ -81,6 +82,7 @@ export default function MainUI({
     if (sessionLink) {
       setRenderedLink(sessionLink);
       setIsLinkLoading(false);
+      setProjectExists(true);
     }
     const fetchInfo = async () => {
       if (sessionLink && slug === sessionLinkId) {
@@ -166,7 +168,7 @@ export default function MainUI({
         setReviews(infoData.reviews);
         setInfoLoading(false);
       }
-
+      
       const chat = await fetch("/api/get_chat", {
         method: "POST",
         headers: {
