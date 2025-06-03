@@ -58,21 +58,45 @@ async function getLowRatedReviews(link: string) {
         break;
       }
     }
-    let attempshow = 0;
-    const showMoreExists = await page.$$('[jsname="JrM82d"]');
-    const noofShow = showMoreExists.length;
-    if (noofShow > 0) {
-      for (let i = 0; i < noofShow; i++) {
-        await page.waitForSelector('[jsname="JrM82d"]', {
+    console.log("Starting to expand truncated reviews...");
+    let showMoreClicks = 0;
+    const maxShowMoreClicks = 50;
+
+    while (showMoreClicks < maxShowMoreClicks) {
+      try {
+        // Look for ONE button at a time (not all at once)
+        const showMoreButton = await page.waitForSelector('[jsname="JrM82d"]', {
           visible: true,
-          hidden: false,
+          timeout: 2000,
         });
-        await page.locator('[jsname="JrM82d"]').click();
-        await setTimeout(1000);
-        attempshow++;
-        console.log(attempshow);
+
+        if (!showMoreButton) {
+          console.log("No more show more buttons found");
+          break;
+        }
+
+        // Click the button
+        await showMoreButton.click();
+        showMoreClicks++;
+        console.log(`Show more click #${showMoreClicks}`);
+
+        // Wait for the button to disappear or content to change
+        await setTimeout(500);
+
+        // Check if there are still more buttons (new ones may have appeared)
+        const remainingButtons = await page.$$('[jsname="JrM82d"]');
+        if (remainingButtons.length === 0) {
+          console.log("All reviews expanded");
+          break;
+        }
+      } catch (error) {
+        // No more buttons found - this is normal when all content is loaded
+        console.log("No more show more buttons available");
+        break;
       }
     }
+
+    console.log(`Expanded ${showMoreClicks} truncated reviews`);
     // Extract reviews from the current page
     const pageReviews = await page.$$eval(".T7rvce", (items: Element[]) => {
       function convertDateFormat(dateString: string): string {

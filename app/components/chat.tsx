@@ -227,7 +227,7 @@ export default function Chat({
                                 <div>
                                   {m.parts
                                     ?.filter(
-                                      (part) => part.type === "reasoning"
+                                      (part) => part.type === "reasoning",
                                     )
                                     .map((reasoningPart, index) => (
                                       <p
@@ -245,7 +245,7 @@ export default function Chat({
                                     <div className="overflow-hidden">
                                       {m.parts
                                         ?.filter(
-                                          (part) => part.type === "reasoning"
+                                          (part) => part.type === "reasoning",
                                         )
                                         .map((reasoningPart, index) => (
                                           <p
@@ -256,8 +256,6 @@ export default function Chat({
                                           </p>
                                         ))}
                                     </div>
-
-                                    
                                   </div>
                                 )}
                             </div>
