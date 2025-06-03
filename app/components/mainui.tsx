@@ -82,6 +82,7 @@ export default function MainUI({
     if (sessionLink) {
       setRenderedLink(sessionLink);
       setIsLinkLoading(false);
+      setChatLoading(false);
       setProjectExists(true);
     }
     const fetchInfo = async () => {
@@ -138,6 +139,39 @@ export default function MainUI({
         setInfoLoading(false);
       }
 
+      if (sessionLink && slug === sessionLinkId) {
+        const newchat = await fetch("/api/new_chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            projectId: projectId,
+          }),
+        });
+        const newchatData = await newchat.json();
+        varchatId = newchatData.chatId;
+        setChatId(varchatId);
+        setChatLoading(false);
+      }
+
+      if (sessionLink && slug === sessionLinkId) {
+        complete(
+          `Generate a comprehensive Chrome extension analysis from this and generate an extension idea from the gaps that are found. The extension is: ${
+            gatheredInfo.name
+          }. The description is: ${
+            gatheredInfo.description
+          }. The reviews are: ${gatheredReview
+            .map((item) => item.text)
+            .join(" ")}.`,
+          {
+            body: {
+              projectId: projectId,
+            },
+          },
+        );
+      }
+
       if (!sessionLink) {
         const info = await fetch("/api/get_info", {
           method: "POST",
@@ -168,43 +202,8 @@ export default function MainUI({
         setReviews(infoData.reviews);
         setInfoLoading(false);
       }
-      
-      const chat = await fetch("/api/get_chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          projectId: projectId,
-        }),
-      });
-      const chatData = await chat.json();
-      if (!chatData.chat.length) {
-        const newchat = await fetch("/api/new_chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            projectId: projectId,
-          }),
-        });
-        const newchatData = await newchat.json();
-        varchatId = newchatData.chatId;
-        setChatId(varchatId);
-        const getmessages = await fetch("/api/get_messages", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            chatId: varchatId,
-          }),
-        });
-        const getmessagesData = await getmessages.json();
-        setMessages(getmessagesData.chatmessages);
-        setChatLoading(false);
-      } else {
+
+      if (!sessionLink) {
         const existingchat = await fetch("/api/get_chat", {
           method: "POST",
           headers: {
@@ -231,31 +230,19 @@ export default function MainUI({
         setChatLoading(false);
       }
 
-      const getanalysis = await fetch("/api/get_analysis", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          projectId: projectId,
-        }),
-      });
-      const getanalysisData = await getanalysis.json();
-      setAnalysis(getanalysisData.analysis);
-
-      if (getanalysisData.analysis !== null) {
-        setExistingAnalysis(true);
-      }
-
-      if (getanalysisData.analysis === null) {
-        complete(
-          `Generate a comprehensive Chrome extension analysis from this and generate an extension idea from the gaps that are found. The extension is: ${gatheredInfo.name}. The description is: ${gatheredInfo.description}. The reviews are: ${gatheredReview.map((item) => item.text).join(" ")}.`,
-          {
-            body: {
-              projectId: projectId,
-            },
+      if (!sessionLink) {
+        const getanalysis = await fetch("/api/get_analysis", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        );
+          body: JSON.stringify({
+            projectId: projectId,
+          }),
+        });
+        const getanalysisData = await getanalysis.json();
+        setAnalysis(getanalysisData.analysis);
+        setExistingAnalysis(true);
       }
 
       sessionStorage.removeItem("link");
