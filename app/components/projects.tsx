@@ -4,12 +4,11 @@ import Image from "next/image";
 import { Project } from "@/db/schema";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 dayjs.extend(relativeTime);
 
 export default function Projects({ userId }: { userId: string | null }) {
-  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   useEffect(() => {
@@ -34,12 +33,10 @@ export default function Projects({ userId }: { userId: string | null }) {
       <div className="flex flex-wrap gap-4 justify-start mt-[20px]">
         {loggedIn ? (
           projects.map((project) => (
-            <button
+            <Link
               key={project.id}
+              href={`/${project.project_uuid}`}
               className="cursor-pointer flex flex-col flex-grow items-start gap-[10px] bg-[#171717] w-[250px] px-[30px] py-[20px] rounded-[20px] outline-[1px] outline-[#2D2D2D]"
-              onClick={() => {
-                router.push(`/${project.project_uuid}`);
-              }}
             >
               <Image
                 className="rounded-[15px]"
@@ -54,7 +51,7 @@ export default function Projects({ userId }: { userId: string | null }) {
               <p className="text-[16px] font-medium text-[#B9B9B9] text-left">
                 {dayjs(project.actual_date_of_creation).fromNow()}
               </p>
-            </button>
+            </Link>
           ))
         ) : (
           <div></div>

@@ -57,3 +57,10 @@ export const messages = pgTable("messages", {
 
 export type Project = InferSelectModel<typeof project>;
 export type InsertProject = InferInsertModel<typeof project>;
+export type Review = InferSelectModel<typeof reviews>;
+export type InsertReview = InferInsertModel<typeof reviews>;
+export type Chat = InferSelectModel<typeof chats>;
+export type InsertChat = InferInsertModel<typeof chats>;
+export type Message = InferSelectModel<typeof messages>;
+export type InsertMessage = InferInsertModel<typeof messages>;
+

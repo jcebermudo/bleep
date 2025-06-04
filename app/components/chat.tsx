@@ -30,17 +30,12 @@ export default function Chat({
   link,
   analysis,
   completion,
-  existingAnalysis,
-  chatLoading,
 }: {
   id?: string | undefined;
   initialMessages?: Message[];
-  link?: string;
-  isLinkLoading?: boolean;
-  analysis?: string;
+  link?: string | null;
+  analysis?: string | null;
   completion?: string;
-  existingAnalysis?: boolean;
-  chatLoading?: boolean;
 } = {}) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [reasoning, setReasoning] = useState(false);
@@ -65,16 +60,6 @@ export default function Chat({
     });
 
   useEffect(() => {
-    setTimeout(() => {
-      if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop =
-          chatContainerRef.current.scrollHeight;
-      }
-    }, 100);
-  }, [messages]);
-
-  useEffect(() => {
-    if (!chatLoading && chatContainerRef.current) {
       // Use setTimeout to ensure DOM is fully rendered
       setTimeout(() => {
         if (chatContainerRef.current) {
@@ -82,8 +67,7 @@ export default function Chat({
             chatContainerRef.current.scrollHeight;
         }
       }, 100);
-    }
-  }, [chatLoading]);
+  }, []);
 
   // Track generation state
   useEffect(() => {
@@ -110,9 +94,6 @@ export default function Chat({
             Status: {status} | Reasoning: {reasoning.toString()} | Generating:{" "}
             {isGenerating.toString()}
           </div>
-          {chatLoading ? (
-            <p>Loading chat...</p>
-          ) : (
             <div className="h-[calc(100vh-200px)]">
               <div className="w-full flex flex-row justify-end mt-[20px]">
                 <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px]">
@@ -135,7 +116,7 @@ export default function Chat({
                   </div>
                 </div>
               )}
-              {existingAnalysis ? (
+              {analysis ? (
                 <div className="mt-[20px]">
                   <div className="flex flex-row items-center gap-[8px]">
                     <Image
@@ -345,7 +326,6 @@ export default function Chat({
                 ) : null}
               </div>
             </div>
-          )}
         </div>
       </div>
       <div className="w-full flex flex-col justify-center items-center px-[20px]">
@@ -353,6 +333,10 @@ export default function Chat({
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit(e);
+            if (chatContainerRef.current) {
+              chatContainerRef.current.scrollTop =
+                chatContainerRef.current.scrollHeight;
+            }
           }}
           className="w-full max-w-[750px] bg-[#171717] rounded-[20px] p-[15px] mb-[50px]"
         >
@@ -365,6 +349,10 @@ export default function Chat({
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 handleSubmit(e as any);
+                if (chatContainerRef.current) {
+                  chatContainerRef.current.scrollTop =
+                    chatContainerRef.current.scrollHeight;
+                }
               }
             }}
             disabled={isGenerating || isChatDisabled}
