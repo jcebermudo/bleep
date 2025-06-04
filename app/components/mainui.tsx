@@ -63,9 +63,8 @@ export default function MainUI({
   const [existingAnalysis, setExistingAnalysis] = useState(false);
   const [infoloading, setInfoLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(true);
-  const [projectExists, setProjectExists] = useState(false);
   const [renderedLink, setRenderedLink] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [isLinkLoading, setIsLinkLoading] = useState(true);
   const hasRun = useRef(false);
@@ -78,13 +77,12 @@ export default function MainUI({
     let varchatId: string;
     const sessionLink = JSON.parse(sessionStorage.getItem("link") || "{}").link;
     const sessionLinkId = JSON.parse(
-      sessionStorage.getItem("link") || "{}"
+      sessionStorage.getItem("link") || "{}",
     ).linkId;
     if (sessionLink) {
       setRenderedLink(sessionLink);
       setIsLinkLoading(false);
       setChatLoading(false);
-      setProjectExists(true);
     }
     const fetchInfo = async () => {
       if (sessionLink && slug === sessionLinkId) {
@@ -158,18 +156,12 @@ export default function MainUI({
 
       if (sessionLink && slug === sessionLinkId) {
         complete(
-          `Generate a comprehensive Chrome extension analysis from this and generate an extension idea from the gaps that are found. The extension is: ${
-            gatheredInfo.name
-          }. The description is: ${
-            gatheredInfo.description
-          }. The reviews are: ${gatheredReview
-            .map((item) => item.text)
-            .join(" ")}.`,
+          "Generate a comprehensive report on Pirates of the Carribean",
           {
             body: {
               projectId: projectId,
             },
-          }
+          },
         );
       }
 

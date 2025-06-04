@@ -1,6 +1,11 @@
-"use server"
+"use server";
 import { db } from "@/db";
-import { project, chats, messages as messagesTable, reviews } from "@/db/schema";
+import {
+  project,
+  chats,
+  messages as messagesTable,
+  reviews,
+} from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { loadChat } from "./chat-store";
 import { type Project, type Review } from "@/db/schema";
@@ -8,11 +13,11 @@ import { type Message } from "ai";
 
 // Option 1: Single query with joins (RECOMMENDED)
 export default async function getExisting(slug: string): Promise<{
-  project: Project | null, 
-  reviews: Review[] | [], 
-  analysis: string | null, 
-  messages: Message[] | [], 
-  link: string | null
+  project: Project | null;
+  reviews: Review[] | [];
+  analysis: string | null;
+  messages: Message[] | [];
+  link: string | null;
 }> {
   try {
     // Single query to get project with related data
@@ -20,7 +25,7 @@ export default async function getExisting(slug: string): Promise<{
       .select({
         project: project,
         review: reviews,
-        chat: chats
+        chat: chats,
       })
       .from(project)
       .leftJoin(reviews, eq(reviews.project_id, project.id))
@@ -40,14 +45,15 @@ export default async function getExisting(slug: string): Promise<{
     // Process the joined results
     const projectData = result[0].project;
     const reviewsData = result
-      .filter(row => row.review !== null)
-      .map(row => row.review!)
-      .filter((review, index, self) => 
-        index === self.findIndex(r => r.id === review.id)
+      .filter((row) => row.review !== null)
+      .map((row) => row.review!)
+      .filter(
+        (review, index, self) =>
+          index === self.findIndex((r) => r.id === review.id),
       ); // Remove duplicates
-    
-    const chatData = result.find(row => row.chat !== null)?.chat;
-    
+
+    const chatData = result.find((row) => row.chat !== null)?.chat;
+
     // Load messages separately (this might still be async)
     const messages = chatData ? await loadChat(chatData.id) : [];
 
@@ -59,7 +65,7 @@ export default async function getExisting(slug: string): Promise<{
       link: projectData.extension_link,
     };
   } catch (error) {
-    console.error('Error fetching project data:', error);
+    console.error("Error fetching project data:", error);
     return {
       project: null,
       reviews: [],

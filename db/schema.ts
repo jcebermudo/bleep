@@ -63,4 +63,3 @@ export type Chat = InferSelectModel<typeof chats>;
 export type InsertChat = InferInsertModel<typeof chats>;
 export type Message = InferSelectModel<typeof messages>;
 export type InsertMessage = InferInsertModel<typeof messages>;
-

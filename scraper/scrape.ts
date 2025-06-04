@@ -15,8 +15,14 @@ interface Review {
 async function getLowRatedReviews(link: string) {
   const isLocal = !!process.env.CHROME_EXECUTABLE_PATH;
   const browser = await puppeteer.launch({
-    args: isLocal ? [...puppeteer.defaultArgs(), '--no-sandbox', '--disable-dev-shm-usage', '--disable-web-security'] 
-      : [...chromium.args, '--no-sandbox', '--disable-dev-shm-usage'],
+    args: isLocal
+      ? [
+          ...puppeteer.defaultArgs(),
+          "--no-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-web-security",
+        ]
+      : [...chromium.args, "--no-sandbox", "--disable-dev-shm-usage"],
     defaultViewport: chromium.defaultViewport,
     executablePath:
       process.env.CHROME_EXECUTABLE_PATH ||
@@ -28,26 +34,29 @@ async function getLowRatedReviews(link: string) {
   const page = await browser.newPage();
 
   // Set a realistic user agent to avoid detection
-  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+  await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  );
 
   // Optimize page performance
   await page.setRequestInterception(true);
-  page.on('request', (req) => {
+  page.on("request", (req) => {
     // Block unnecessary resources to speed up loading
-    if (req.resourceType() === 'image' || 
-        req.resourceType() === 'stylesheet' || 
-        req.resourceType() === 'font') {
+    if (
+      req.resourceType() === "image" ||
+      req.resourceType() === "stylesheet" ||
+      req.resourceType() === "font"
+    ) {
       req.abort();
     } else {
       req.continue();
     }
   });
 
-
   try {
     await page.goto(`${link}/reviews`, {
       waitUntil: "domcontentloaded", // Faster than networkidle2
-      timeout: 30000
+      timeout: 30000,
     });
 
     // Wait for reviews with a reasonable timeout
@@ -65,18 +74,21 @@ async function getLowRatedReviews(link: string) {
       try {
         // Use more specific selector and ensure element is clickable
         const loadMoreButton = await page.waitForSelector(
-          '[jsname="Btxakc"]:not([style*="display: none"])', 
-          { timeout: 1000, visible: true }
+          '[jsname="Btxakc"]:not([style*="display: none"])',
+          { timeout: 1000, visible: true },
         );
-        
+
         if (!loadMoreButton) break;
 
         // Check if button is actually clickable
         const isClickable = await page.evaluate((btn) => {
           const rect = btn.getBoundingClientRect();
-          return rect.width > 0 && rect.height > 0 && 
-                 window.getComputedStyle(btn).display !== 'none' &&
-                 !btn.hasAttribute('disabled');
+          return (
+            rect.width > 0 &&
+            rect.height > 0 &&
+            window.getComputedStyle(btn).display !== "none" &&
+            !btn.hasAttribute("disabled")
+          );
         }, loadMoreButton);
 
         if (!isClickable) break;
@@ -84,7 +96,7 @@ async function getLowRatedReviews(link: string) {
         // Use both click methods for reliability
         await Promise.race([
           loadMoreButton.click(),
-          page.evaluate((btn) => (btn as HTMLElement).click(), loadMoreButton)
+          page.evaluate((btn) => (btn as HTMLElement).click(), loadMoreButton),
         ]);
 
         attempts++;
@@ -92,11 +104,14 @@ async function getLowRatedReviews(link: string) {
 
         // Wait for new content with network activity check
         await Promise.race([
-          page.waitForResponse(response => response.url().includes('reviews'), { timeout: 3000 }),
+          page.waitForResponse(
+            (response) => response.url().includes("reviews"),
+            { timeout: 3000 },
+          ),
         ]);
-
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error occurred";
         console.log("No more load buttons or error occurred:", errorMessage);
         break;
       }
@@ -104,13 +119,15 @@ async function getLowRatedReviews(link: string) {
 
     console.log("Starting to expand truncated reviews...");
     let expandAttempts = 0;
-    const maxExpandAttempts = 25; 
+    const maxExpandAttempts = 25;
 
     while (expandAttempts < maxExpandAttempts) {
       try {
         // Get all expand buttons at once and click them in batch
-        const expandButtons = await page.$$('[jsname="JrM82d"]:not([style*="display: none"])');
-        
+        const expandButtons = await page.$$(
+          '[jsname="JrM82d"]:not([style*="display: none"])',
+        );
+
         if (expandButtons.length === 0) {
           console.log("No more expandable reviews found");
           break;
@@ -118,16 +135,16 @@ async function getLowRatedReviews(link: string) {
 
         // Click up to 5 buttons at once for efficiency
         const buttonsToClick = expandButtons.slice(0, 5);
-        
+
         for (const button of buttonsToClick) {
           try {
             await button.scrollIntoView();
             await Promise.race([
               button.click(),
-              page.evaluate((btn) => (btn as HTMLElement).click(), button)
+              page.evaluate((btn) => (btn as HTMLElement).click(), button),
             ]);
             expandAttempts++;
-            
+
             // Small random delay between clicks
             await setTimeout(Math.random() * 200 + 100);
           } catch (e) {
@@ -136,8 +153,9 @@ async function getLowRatedReviews(link: string) {
           }
         }
 
-        console.log(`Expanded ${buttonsToClick.length} reviews (total: ${expandAttempts})`);
-
+        console.log(
+          `Expanded ${buttonsToClick.length} reviews (total: ${expandAttempts})`,
+        );
       } catch (error) {
         console.log("No more expandable reviews");
         break;

@@ -65,13 +65,11 @@ export default function Chat({
     });
 
   useEffect(() => {
-    setTimeout(() => {
-      if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop =
-          chatContainerRef.current.scrollHeight;
-      }
-    }, 100);
-  }, [messages]);
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [status]);
 
   useEffect(() => {
     if (!chatLoading && chatContainerRef.current) {
@@ -184,7 +182,7 @@ export default function Chat({
                 </div>
               )}
               <div className="pb-[50px]">
-                {messages.map((m) => (
+                {messages.map((m, index) => (
                   <div key={m.id}>
                     {m.role == "user" ? (
                       <div className="w-full flex flex-row justify-end mt-[20px]">
@@ -201,16 +199,16 @@ export default function Chat({
                             width={25}
                             height={25}
                           />
-                          {status === "streaming" ||
-                          (messages.length > 0 &&
-                            messages[messages.length - 1].role !== "user" &&
-                            messages[messages.length - 1].parts?.some(
+                          {/* Only show "Thinking..." for the most recent AI message */}
+                          {(status === "streaming" &&
+                            index === messages.length - 1 && // This is the most recent message
+                            m.role === "assistant") ||
+                          (index === messages.length - 1 && // This is the most recent message
+                            m.role === "assistant" &&
+                            m.parts?.some(
                               (part) => part.type === "reasoning"
                             ) &&
-                            !(
-                              messages[messages.length - 1].content?.trim()
-                                .length > 0
-                            )) ? (
+                            !(m.content?.trim().length > 0)) ? (
                             <p className="font-medium text-[16px] flex items-center">
                               Thinking<span className="thinking-text"></span>
                               <style jsx>{styles}</style>
@@ -226,26 +224,19 @@ export default function Chat({
                             <div>
                               {m.parts
                                 ?.filter((part) => part.type === "reasoning")
-                                .map((reasoningPart, index) => (
+                                .map((reasoningPart, reasoningIndex) => (
                                   <ThinkingDropdown
-                                    key={index}
+                                    key={reasoningIndex}
                                     title="Thoughts"
                                     isOpen={
                                       showReasoning[m.id] ||
                                       (status === "streaming" &&
-                                        messages.length > 0 &&
-                                        messages[messages.length - 1].role !==
-                                          "user" &&
-                                        messages[
-                                          messages.length - 1
-                                        ].parts?.some(
+                                        index === messages.length - 1 && // Only for the most recent message
+                                        m.role !== "user" &&
+                                        m.parts?.some(
                                           (part) => part.type === "reasoning"
                                         ) &&
-                                        !(
-                                          messages[
-                                            messages.length - 1
-                                          ].content?.trim().length > 0
-                                        ))
+                                        !(m.content?.trim().length > 0))
                                     }
                                     onToggle={() =>
                                       toggleMessageReasoning(m.id)
