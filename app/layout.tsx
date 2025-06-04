@@ -18,6 +18,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
+        {/* rest of your scripts go under */}
+      </head>
       <body
         className={`${myFont.className} antialiased overflow-hidden selection:bg-[#3E0042] selection:text-[#FBC7FF]`}
       >
