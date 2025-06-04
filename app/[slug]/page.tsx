@@ -3,27 +3,56 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import MainUI from "../components/mainui";
+import getExisting from "@/tools/get-existing";
+import { type Project, type Review } from "@/db/schema";
+import { type Message } from "ai";
 
-export default async function Page({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ process?: string; link?: string }>;
-}) {
-  const { slug } = await params;
-  const { process, link } = await searchParams;
+async function fetchUserAndProject(slug: string) {
   const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
+
+  // Run auth check and data fetch in parallel
+  const [{ data }, existing] = await Promise.all([
+    supabase.auth.getUser(),
+    getExisting(slug),
+  ]);
+
   if (!data?.user) {
     redirect("/login");
   }
 
-  const sessionLink = JSON.parse(sessionStorage.getItem("link") || "{}").link;
+  return { user: data.user, existing };
+}
 
-  if (!sessionLink) {
-    
-  }
 
-  return <MainUI slug={slug} userId={data.user.id} />;
+export default async function PageOptimized({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+
+  // Parallel execution
+  const { user, existing } = await fetchUserAndProject(slug);
+
+  // Simplified data preparation
+  const fetchedData = {
+    project: existing.project,
+    reviews: existing.reviews || [],
+    analysis: existing.analysis,
+    messages: existing.messages || [],
+    link: existing.project?.extension_link || null,
+  };
+
+  return (
+    <MainUI
+      slug={slug}
+      userId={user.id}
+      fetchedProject={fetchedData.project}
+      fetchedReviews={fetchedData.reviews}
+      fetchedAnalysis={fetchedData.analysis}
+      fetchedMessages={fetchedData.messages}
+      exists={!!fetchedData.project}
+      link={fetchedData.link}
+    />
+  );
 }
