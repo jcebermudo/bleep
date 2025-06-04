@@ -19,5 +19,11 @@ export default async function Page({
     redirect("/login");
   }
 
-  return <MainUI slug={slug} userId={data.user.id} link={link} />;
+  const sessionLink = JSON.parse(sessionStorage.getItem("link") || "{}").link;
+
+  if (!sessionLink) {
+    
+  }
+
+  return <MainUI slug={slug} userId={data.user.id} />;
 }

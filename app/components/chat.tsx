@@ -70,7 +70,7 @@ export default function Chat({
         chatContainerRef.current.scrollTop =
           chatContainerRef.current.scrollHeight;
       }
-    }, 100);
+    }, 1000);
   }, [messages]);
 
   useEffect(() => {
