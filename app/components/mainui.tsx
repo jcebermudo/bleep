@@ -9,52 +9,85 @@ import Image from "next/image";
 import ShowMore from "./showmore";
 import Markdown from "react-markdown";
 import { motion } from "motion/react";
-import { type Project, type Review } from "@/db/schema";
 
+interface Review {
+  id: number;
+  project_id: number;
+  rating: number;
+  text: string;
+  date: string;
+  days_ago_since_retrieval: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Info {
+  id: number;
+  project_uuid: string;
+  user_uuid: string;
+  extension_link: string;
+  name: string;
+  icon: string;
+  description: string;
+  actual_date_of_creation: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export default function MainUI({
   slug,
   userId,
-  fetchedProject,
-  fetchedReviews,
-  fetchedAnalysis,
-  fetchedMessages,
-  exists,
-  link,
 }: {
   slug: string;
   userId: string;
-  fetchedProject: Project | null;
-  fetchedReviews: Review[] | [];
-  fetchedAnalysis: string | null;
-  fetchedMessages: Message[] | [];
-  exists: boolean;
-  link: string | null;
 }) {
   const { completion, complete } = useCompletion({
     api: "/api/completion",
   });
-  const [project, setProject] = useState<Project | null>(fetchedProject);
-  const [review, setReviews] = useState<Review[] | []>(fetchedReviews);
+  const [info, setInfo] = useState<Info>({
+    id: 0,
+    project_uuid: "",
+    user_uuid: "",
+    extension_link: "",
+    name: "",
+    icon: "",
+    description: "",
+    actual_date_of_creation: "",
+    created_at: "",
+    updated_at: "",
+  });
+  const [review, setReviews] = useState<Review[]>([]);
+  const [analysis, setAnalysis] = useState<string>();
   const [chatId, setChatId] = useState<string>();
-  const [infoloading, setInfoLoading] = useState(!exists);
-  const [renderedLink, setRenderedLink] = useState<string | null>(link);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [existingAnalysis, setExistingAnalysis] = useState(false);
+  const [infoloading, setInfoLoading] = useState(true);
+  const [chatLoading, setChatLoading] = useState(true);
+  const [projectExists, setProjectExists] = useState(false);
+  const [renderedLink, setRenderedLink] = useState<string | undefined>(
+    undefined
+  );
+  const [isLinkLoading, setIsLinkLoading] = useState(true);
   const hasRun = useRef(false);
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
     let projectId: string;
-    let gatheredInfo: Project;
+    let gatheredInfo: Info;
     let gatheredReview: Review[];
     let varchatId: string;
-    const sessionLink = JSON.parse(
+    const sessionLink = JSON.parse(sessionStorage.getItem("link") || "{}").link;
+    const sessionLinkId = JSON.parse(
       sessionStorage.getItem("link") || "{}"
-    ).link;
+    ).linkId;
+    if (sessionLink) {
+      setRenderedLink(sessionLink);
+      setIsLinkLoading(false);
+      setChatLoading(false);
+      setProjectExists(true);
+    }
     const fetchInfo = async () => {
-      if (!exists && sessionLink) {
-           if (sessionLink) {
-             setRenderedLink(sessionLink);
-           }
+      if (sessionLink && slug === sessionLinkId) {
         const info = await fetch("/api/scrape_info", {
           method: "POST",
           headers: {
@@ -66,7 +99,7 @@ export default function MainUI({
         });
         const infoData = await info.json();
         gatheredInfo = infoData.info;
-        setProject({
+        setInfo({
           ...infoData.info,
           name: infoData.info?.name || "",
           icon: infoData.info?.icon || "",
@@ -81,7 +114,7 @@ export default function MainUI({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            linkId: slug,
+            linkId: sessionLinkId,
             userId: userId,
             link: sessionLink,
             name: infoData.info.name,
@@ -107,7 +140,7 @@ export default function MainUI({
         setInfoLoading(false);
       }
 
-      if (!exists && sessionLink) {
+      if (sessionLink && slug === sessionLinkId) {
         const newchat = await fetch("/api/new_chat", {
           method: "POST",
           headers: {
@@ -120,9 +153,10 @@ export default function MainUI({
         const newchatData = await newchat.json();
         varchatId = newchatData.chatId;
         setChatId(varchatId);
+        setChatLoading(false);
       }
 
-      if (!exists && sessionLink) {
+      if (sessionLink && slug === sessionLinkId) {
         complete(
           `Generate a comprehensive Chrome extension analysis from this and generate an extension idea from the gaps that are found. The extension is: ${
             gatheredInfo.name
@@ -135,8 +169,81 @@ export default function MainUI({
             body: {
               projectId: projectId,
             },
-          },
+          }
         );
+      }
+
+      if (!sessionLink) {
+        const info = await fetch("/api/get_info", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            slug: slug,
+            userId: userId,
+          }),
+        });
+        const infoData = await info.json();
+        gatheredInfo = infoData.project;
+        projectId = infoData.project.id;
+        setRenderedLink(infoData.project.extension_link);
+        setIsLinkLoading(false);
+        setInfo({
+          ...infoData.project,
+          name: infoData.project?.name || "",
+          icon: infoData.project?.icon || "",
+          description: infoData.project?.description || "",
+          actual_date_of_creation:
+            infoData.project?.actual_date_of_creation || "",
+          created_at: infoData.project?.created_at,
+          updated_at: infoData.project?.updated_at,
+        });
+        gatheredReview = infoData.reviews;
+        setReviews(infoData.reviews);
+        setInfoLoading(false);
+      }
+
+      if (!sessionLink) {
+        const existingchat = await fetch("/api/get_chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            projectId: projectId,
+          }),
+        });
+        const existingchatData = await existingchat.json();
+        varchatId = existingchatData.chat[0].id;
+        setChatId(varchatId);
+        const getmessages = await fetch("/api/get_messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            chatId: varchatId,
+          }),
+        });
+        const getmessagesData = await getmessages.json();
+        setMessages(getmessagesData.chatmessages);
+      }
+
+      if (!sessionLink) {
+        const getanalysis = await fetch("/api/get_analysis", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            projectId: projectId,
+          }),
+        });
+        const getanalysisData = await getanalysis.json();
+        setAnalysis(getanalysisData.analysis);
+        setExistingAnalysis(true);
+        setChatLoading(false);
       }
 
       sessionStorage.removeItem("link");
@@ -149,10 +256,12 @@ export default function MainUI({
         <div className="flex flex-row justify-between gap-[5px]">
           <Chat
             id={chatId}
-            initialMessages={fetchedMessages}
+            initialMessages={messages}
             link={renderedLink}
-            analysis={fetchedAnalysis}
+            analysis={analysis}
             completion={completion}
+            existingAnalysis={existingAnalysis}
+            chatLoading={chatLoading}
           />
           <div>
             <div className="bg-[#101010] h-screen rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px] max-w-[1000px] min-w-[500px] overflow-y-auto">
@@ -182,14 +291,14 @@ export default function MainUI({
                   >
                     <div className="flex flex-row items-center gap-[15px] bg-[#171717] rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
                       <Image
-                        src={project?.icon || "/images/placeholder.png"}
-                        alt={project?.name || "none"}
+                        src={info.icon}
+                        alt={info.name}
                         width={40}
                         height={40}
                       />
-                      {project && (
+                      {info && (
                         <div className="font-medium text-[16px]">
-                          {project.name}
+                          {info.name}
                         </div>
                       )}
                     </div>
@@ -197,7 +306,7 @@ export default function MainUI({
                       <p className="font-medium text-[16px] text-[#B5B5B5]">
                         About
                       </p>
-                      {project && <ShowMore text={project.description || ""} />}
+                      {info && <ShowMore text={info.description} />}
                     </div>
                   </motion.div>
                   <motion.div
