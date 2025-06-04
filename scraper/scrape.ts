@@ -15,7 +15,8 @@ interface Review {
 async function getLowRatedReviews(link: string) {
   const isLocal = !!process.env.CHROME_EXECUTABLE_PATH;
   const browser = await puppeteer.launch({
-    args: isLocal ? puppeteer.defaultArgs() : chromium.args,
+    args: isLocal ? [...puppeteer.defaultArgs(), '--no-sandbox', '--disable-dev-shm-usage', '--disable-web-security'] 
+      : [...chromium.args, '--no-sandbox', '--disable-dev-shm-usage'],
     defaultViewport: chromium.defaultViewport,
     executablePath:
       process.env.CHROME_EXECUTABLE_PATH ||
@@ -25,78 +26,125 @@ async function getLowRatedReviews(link: string) {
     headless: chromium.headless,
   });
   const page = await browser.newPage();
-  await page.goto(`${link}/reviews`, {
-    waitUntil: "networkidle2",
-  });
-  await page.waitForSelector(".T7rvce");
 
-  let lowRatedReviews: Review[] = [];
-  let attempts = 0;
-  const maxAttempts = 20; // Maximum attempts to load more reviews
-  let foundRecentLowRated = false;
-  let firstAttempt = true;
+  // Set a realistic user agent to avoid detection
+  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+
+  // Optimize page performance
+  await page.setRequestInterception(true);
+  page.on('request', (req) => {
+    // Block unnecessary resources to speed up loading
+    if (req.resourceType() === 'image' || 
+        req.resourceType() === 'stylesheet' || 
+        req.resourceType() === 'font') {
+      req.abort();
+    } else {
+      req.continue();
+    }
+  });
+
 
   try {
-    // Wait for reviews to load
-    await page.waitForSelector(".T7rvce");
+    await page.goto(`${link}/reviews`, {
+      waitUntil: "domcontentloaded", // Faster than networkidle2
+      timeout: 30000
+    });
+
+    // Wait for reviews with a reasonable timeout
+    await page.waitForSelector(".T7rvce", { timeout: 10000 });
+
+    let lowRatedReviews: Review[] = [];
+    let attempts = 0;
+    const maxAttempts = 15; // Reduced from 20
+    let foundRecentLowRated = false;
+    let firstAttempt = true;
+
+    // Load more reviews with better click detection
+    console.log("Loading more reviews...");
     while (attempts < maxAttempts) {
       try {
-        // Try to find the "load more" button with a short timeout
-        const elementExists = await page.waitForSelector('[jsname="Btxakc"]', {
-          timeout: 1000,
-        });
-        if (elementExists) {
-          await page.locator('[jsname="Btxakc"]').click();
-          attempts++;
-          console.log(attempts);
-          // Wait a bit after clicking to let new content load
-          await setTimeout(500);
-        }
-      } catch {
-        // Element wasn't found within timeout - we've loaded all available reviews
-        console.log("No more load more button found, all reviews loaded");
+        // Use more specific selector and ensure element is clickable
+        const loadMoreButton = await page.waitForSelector(
+          '[jsname="Btxakc"]:not([style*="display: none"])', 
+          { timeout: 1000, visible: true }
+        );
+        
+        if (!loadMoreButton) break;
+
+        // Check if button is actually clickable
+        const isClickable = await page.evaluate((btn) => {
+          const rect = btn.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0 && 
+                 window.getComputedStyle(btn).display !== 'none' &&
+                 !btn.hasAttribute('disabled');
+        }, loadMoreButton);
+
+        if (!isClickable) break;
+
+        // Use both click methods for reliability
+        await Promise.race([
+          loadMoreButton.click(),
+          page.evaluate((btn) => (btn as HTMLElement).click(), loadMoreButton)
+        ]);
+
+        attempts++;
+        console.log(`Load more attempt: ${attempts}`);
+
+        // Wait for new content with network activity check
+        await Promise.race([
+          page.waitForResponse(response => response.url().includes('reviews'), { timeout: 3000 }),
+        ]);
+
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        console.log("No more load buttons or error occurred:", errorMessage);
         break;
       }
     }
+
     console.log("Starting to expand truncated reviews...");
-    let showMoreClicks = 0;
-    const maxShowMoreClicks = 50;
+    let expandAttempts = 0;
+    const maxExpandAttempts = 25; 
 
-    while (showMoreClicks < maxShowMoreClicks) {
+    while (expandAttempts < maxExpandAttempts) {
       try {
-        // Look for ONE button at a time (not all at once)
-        const showMoreButton = await page.waitForSelector('[jsname="JrM82d"]', {
-          visible: true,
-          timeout: 2000,
-        });
-
-        if (!showMoreButton) {
-          console.log("No more show more buttons found");
+        // Get all expand buttons at once and click them in batch
+        const expandButtons = await page.$$('[jsname="JrM82d"]:not([style*="display: none"])');
+        
+        if (expandButtons.length === 0) {
+          console.log("No more expandable reviews found");
           break;
         }
 
-        // Click the button
-        await showMoreButton.click();
-        showMoreClicks++;
-        console.log(`Show more click #${showMoreClicks}`);
-
-        // Wait for the button to disappear or content to change
-        await setTimeout(500);
-
-        // Check if there are still more buttons (new ones may have appeared)
-        const remainingButtons = await page.$$('[jsname="JrM82d"]');
-        if (remainingButtons.length === 0) {
-          console.log("All reviews expanded");
-          break;
+        // Click up to 5 buttons at once for efficiency
+        const buttonsToClick = expandButtons.slice(0, 5);
+        
+        for (const button of buttonsToClick) {
+          try {
+            await button.scrollIntoView();
+            await Promise.race([
+              button.click(),
+              page.evaluate((btn) => (btn as HTMLElement).click(), button)
+            ]);
+            expandAttempts++;
+            
+            // Small random delay between clicks
+            await setTimeout(Math.random() * 200 + 100);
+          } catch (e) {
+            // Continue with other buttons if one fails
+            continue;
+          }
         }
+
+        console.log(`Expanded ${buttonsToClick.length} reviews (total: ${expandAttempts})`);
+
       } catch (error) {
-        // No more buttons found - this is normal when all content is loaded
-        console.log("No more show more buttons available");
+        console.log("No more expandable reviews");
         break;
       }
     }
 
-    console.log(`Expanded ${showMoreClicks} truncated reviews`);
+    console.log(`Expanded ${expandAttempts} truncated reviews`);
     // Extract reviews from the current page
     const pageReviews = await page.$$eval(".T7rvce", (items: Element[]) => {
       function convertDateFormat(dateString: string): string {
