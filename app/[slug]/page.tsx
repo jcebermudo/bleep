@@ -19,5 +19,5 @@ export default async function Page({
     redirect("/login");
   }
 
-  return <MainUI slug={slug} userId={data.user.id} link={link} />;
+  return <MainUI slug={slug} userId={data.user.id} />;
 }

@@ -82,25 +82,18 @@ export default function Link({ userId }: { userId: string | null }) {
     }, 0);
   };
 
-  const gotoProject = async (e: FormEvent<HTMLFormElement>) => {
+  const gotoProject = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!inputValue.trim() || !validateWebStoreLink(inputValue)) return;
 
     const linkId = uuidv4();
-    // Ensure the link has https://
     const link = inputValue.startsWith("http")
       ? inputValue
       : `https://${inputValue}`;
 
-    sessionStorage.setItem(
-      "link",
-      JSON.stringify({
-        link: link,
-        linkId: linkId,
-      }),
-    );
-
-    await router.push(`/${linkId}`);
+    // Store in sessionStorage and navigate simultaneously
+    sessionStorage.setItem("link", JSON.stringify({ link, linkId }));
+    router.push(`/${linkId}`); // Remove await - navigation happens immediately
   };
 
   const isButtonDisabled = !inputValue.trim() || !isValid;
