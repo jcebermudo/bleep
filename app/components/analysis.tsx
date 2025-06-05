@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { generate } from "@/tools/testing";
-import { readStreamableValue, createStreamableValue } from "ai/rsc";
+import { readStreamableValue } from "ai/rsc";
 import { ChevronDown, ChevronRight, Brain, MessageSquare } from "lucide-react";
 import ThinkingDropdown from "../components/thinking-dropdown";
 import { motion, AnimatePresence } from "motion/react";
@@ -19,12 +19,13 @@ interface ParsedResponse {
 
 export default function Analysis({
   analysis,
-  prompt,
+  generation,
 }: {
   analysis?: string;
-  prompt?: string;
+  generation?: string;
 }) {
-  const [generation, setGeneration] = useState<string>("");
+  console.log("Analysis component props:", { analysis, generation });
+
   const [isThinkingExpanded, setIsThinkingExpanded] = useState(false);
 
   const parseStreamingResponse = (text: string): ParsedResponse => {
@@ -50,51 +51,13 @@ export default function Analysis({
     };
   };
 
-  const parsed = parseStreamingResponse(analysis ?? generation);
+  const parsed = parseStreamingResponse(analysis || generation || "");
 
   const shouldShowThinkingContent =
     !parsed.isThinkingComplete || isThinkingExpanded;
 
-  useEffect(() => {
-    if (analysis) {
-      return;
-    }
-    const generateAnalysis = async () => {
-      const response = await fetch("/api/analysis", {
-        method: "POST",
-        body: JSON.stringify({
-          prompt: prompt,
-        }),
-      });
-
-      const data = await response.json();
-      const stream = data.output;
-      for await (const delta of readStreamableValue(stream)) {
-        setGeneration((currentGeneration) => `${currentGeneration}${delta}`);
-      }
-    };
-
-    generateAnalysis();
-  }, [prompt]);
-
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-4 overflow-y-auto">
-      <button
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-        onClick={async () => {
-          setGeneration(""); // Reset generation
-          const { output } = await generate("Why is albert einstein so smart?");
-
-          for await (const delta of readStreamableValue(output)) {
-            setGeneration(
-              (currentGeneration) => `${currentGeneration}${delta}`
-            );
-          }
-        }}
-      >
-        Ask
-      </button>
-
       {analysis && (
         <div className="mt-[10px]">
           <ThinkingDropdown

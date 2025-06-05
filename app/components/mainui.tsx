@@ -124,9 +124,6 @@ export default function MainUI({
   slug: string;
   userId: string;
 }) {
-  const { completion, complete } = useCompletion({
-    api: "/api/completion",
-  });
   const [info, setInfo] = useState<Info>({
     id: 0,
     project_uuid: "",
@@ -140,12 +137,12 @@ export default function MainUI({
     updated_at: "",
   });
   const [review, setReviews] = useState<Review[]>([]);
-  const [analysis, setAnalysis] = useState<string>();
-  const [chatId, setChatId] = useState<string>();
+  const [analysis, setAnalysis] = useState<string | undefined>(undefined);
+  const [chatId, setChatId] = useState<string | undefined>(undefined);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [existingAnalysis, setExistingAnalysis] = useState(false);
   const [infoloading, setInfoLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(true);
+  const [generation, setGeneration] = useState<string | undefined>(undefined);
   const [renderedLink, setRenderedLink] = useState<string | undefined>(
     undefined,
   );
@@ -238,14 +235,36 @@ export default function MainUI({
       }
 
       if (sessionLink && slug === sessionLinkId) {
-        complete(
-          "Generate a comprehensive report on Pirates of the Carribean",
-          {
-            body: {
-              projectId: projectId,
-            },
-          },
-        );
+        const response = await fetch("/api/analysis", {
+          method: "POST",
+          body: JSON.stringify({
+            prompt:
+              `Generate a comprehensive report on ${gatheredInfo.name} and create an idea for a competing product based on the user reviews.` +
+              `The report should be in markdown format.` +
+              `Here are the user reviews: ${gatheredReview.map((review) => review.text).join("\n")}` +
+              `Here is the information about the product: ${gatheredInfo.description}` +
+              `Here is the date of creation of the product: ${gatheredInfo.actual_date_of_creation}`,
+          }),
+        });
+
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+
+        if (!reader) return;
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            setGeneration(
+              (currentGeneration) => `${currentGeneration}${chunk}`
+            );
+          }
+        } finally {
+          reader.releaseLock();
+        }
       }
 
       if (!sessionLink) {
@@ -317,7 +336,6 @@ export default function MainUI({
         });
         const getanalysisData = await getanalysis.json();
         setAnalysis(getanalysisData.analysis);
-        setExistingAnalysis(true);
         setChatLoading(false);
       }
 
@@ -334,8 +352,6 @@ export default function MainUI({
             initialMessages={messages}
             link={renderedLink}
             analysis={analysis}
-            completion={completion}
-            existingAnalysis={existingAnalysis}
             chatLoading={chatLoading}
           />
           <div>

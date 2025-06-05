@@ -8,6 +8,7 @@ import ReactMarkdown from "react-markdown";
 import Image from "next/image";
 import { motion } from "motion/react";
 import ThinkingDropdown from "./thinking-dropdown";
+import Analysis from "./analysis";
 
 const styles = `
   @keyframes ellipsis {
@@ -29,8 +30,7 @@ export default function Chat({
   initialMessages,
   link,
   analysis,
-  completion,
-  existingAnalysis,
+  generation,
   chatLoading,
 }: {
   id?: string | undefined;
@@ -38,8 +38,7 @@ export default function Chat({
   link?: string;
   isLinkLoading?: boolean;
   analysis?: string;
-  completion?: string;
-  existingAnalysis?: boolean;
+  generation?: string | undefined;
   chatLoading?: boolean;
 } = {}) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -117,70 +116,7 @@ export default function Chat({
                   {link}
                 </p>
               </div>
-              {completion == undefined && (
-                <div className="mt-[20px]">
-                  <div className="flex flex-row items-center gap-[8px]">
-                    <Image
-                      src="/images/bleep.svg"
-                      alt="bleep"
-                      width={25}
-                      height={25}
-                    />
-                    <p className="font-medium text-[16px] flex items-center">
-                      Thinking<span className="thinking-text"></span>
-                      <style jsx>{styles}</style>
-                    </p>
-                  </div>
-                </div>
-              )}
-              {existingAnalysis ? (
-                <div className="mt-[20px]">
-                  <div className="flex flex-row items-center gap-[8px]">
-                    <Image
-                      src="/images/bleep.svg"
-                      alt="bleep"
-                      width={25}
-                      height={25}
-                    />
-                    <p className="font-medium text-[16px]">Bleep</p>
-                  </div>
-                  <div className="mt-[10px]">
-                    <ReactMarkdown>{analysis}</ReactMarkdown>
-                  </div>
-                </div>
-              ) : (
-                <div className="mt-[20px]">
-                  <div className="flex flex-row items-center gap-[8px]">
-                    <Image
-                      src="/images/bleep.svg"
-                      alt="bleep"
-                      width={25}
-                      height={25}
-                    />
-
-                    {status === "streaming" &&
-                    messages.length > 0 &&
-                    messages[messages.length - 1].role !== "user" &&
-                    messages[messages.length - 1].parts?.some(
-                      (part) => part.type === "reasoning",
-                    ) &&
-                    !(
-                      messages[messages.length - 1].content?.trim().length > 0
-                    ) ? (
-                      <p className="font-medium text-[16px] flex items-center">
-                        Thinking<span className="thinking-text"></span>
-                        <style jsx>{styles}</style>
-                      </p>
-                    ) : (
-                      <p className="font-medium text-[16px]">Bleep</p>
-                    )}
-                  </div>
-
-                  <div className="mt-[10px]">
-                    <ReactMarkdown>{completion}</ReactMarkdown>
-                  </div>
-                </div>
-              )}
+              <Analysis analysis={analysis} generation={generation} />
               <div className="pb-[50px]">
                 {messages.map((m, index) => (
                   <div key={m.id}>
@@ -206,7 +142,7 @@ export default function Chat({
                           (index === messages.length - 1 && // This is the most recent message
                             m.role === "assistant" &&
                             m.parts?.some(
-                              (part) => part.type === "reasoning",
+                              (part) => part.type === "reasoning"
                             ) &&
                             !(m.content?.trim().length > 0)) ? (
                             <p className="font-medium text-[16px] flex items-center">
@@ -234,7 +170,7 @@ export default function Chat({
                                         index === messages.length - 1 && // Only for the most recent message
                                         m.role !== "user" &&
                                         m.parts?.some(
-                                          (part) => part.type === "reasoning",
+                                          (part) => part.type === "reasoning"
                                         ) &&
                                         !(m.content?.trim().length > 0))
                                     }

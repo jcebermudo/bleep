@@ -8,7 +8,7 @@ export default function Testing() {
 
   return (
     <div>
-      <Analysis prompt={prompt} />
+      <Analysis />
     </div>
   );
 }
