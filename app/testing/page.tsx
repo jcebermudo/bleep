@@ -4,6 +4,7 @@ import { useState } from "react";
 import { generate } from "@/tools/testing";
 import { readStreamableValue } from "ai/rsc";
 import { ChevronDown, ChevronRight, Brain, MessageSquare } from "lucide-react";
+import ThinkingDropdown from "../components/thinking-dropdown";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -43,12 +44,15 @@ export default function Home() {
 
   const parsed = parseStreamingResponse(generation);
 
+  const shouldShowThinkingContent = !parsed.isThinkingComplete || isThinkingExpanded;
+
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-4">
+    <div className="max-w-4xl mx-auto p-6 space-y-4 overflow-y-auto">
       <button
         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
         onClick={async () => {
           setGeneration(""); // Reset generation
+          setIsThinkingExpanded(true); // Set expanded to true when starting generation
           const { output } = await generate("Why is the sky blue?");
 
           for await (const delta of readStreamableValue(output)) {
@@ -64,42 +68,13 @@ export default function Home() {
       {generation && (
         <>
           {/* Thinking Container */}
-          {parsed.thinking && (
-            <div className="border border-amber-200 rounded-lg bg-amber-50">
-              <button
-                onClick={() => setIsThinkingExpanded(!isThinkingExpanded)}
-                className="w-full px-4 py-3 flex items-center justify-between hover:bg-amber-100 rounded-t-lg transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Brain className="w-5 h-5 text-amber-600" />
-                  <span className="font-medium text-amber-800">
-                    Thinking Process
-                    {!parsed.isThinkingComplete && (
-                      <span className="ml-2 text-xs bg-amber-200 px-2 py-1 rounded animate-pulse">
-                        streaming...
-                      </span>
-                    )}
-                  </span>
-                </div>
-                {isThinkingExpanded ? (
-                  <ChevronDown className="w-5 h-5 text-amber-600" />
-                ) : (
-                  <ChevronRight className="w-5 h-5 text-amber-600" />
-                )}
-              </button>
-
-              {isThinkingExpanded && (
-                <div className="px-4 pb-4 border-t border-amber-200">
-                  <div className="mt-3 text-amber-900 text-sm leading-relaxed whitespace-pre-wrap">
-                    {parsed.thinking}
-                    {!parsed.isThinkingComplete && (
-                      <span className="inline-block w-2 h-4 bg-amber-400 ml-1 animate-pulse" />
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+          <ThinkingDropdown
+            title="Thoughts"
+            isOpen={isThinkingExpanded || !parsed.isThinkingComplete}
+            onToggle={() => setIsThinkingExpanded(!isThinkingExpanded)}
+          >
+            {parsed.thinking}
+          </ThinkingDropdown>
 
           {/* Response Container */}
           {parsed.response && (
