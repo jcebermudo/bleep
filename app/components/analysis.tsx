@@ -17,7 +17,13 @@ interface ParsedResponse {
   isThinkingComplete: boolean;
 }
 
-export default function Home() {
+export default function Analysis({
+  analysis,
+  prompt,
+}: {
+  analysis?: string;
+  prompt?: string;
+}) {
   const [generation, setGeneration] = useState<string>("");
   const [isThinkingExpanded, setIsThinkingExpanded] = useState(false);
   const [isResponseComplete, setIsResponseComplete] = useState(false);
@@ -45,7 +51,7 @@ export default function Home() {
     };
   };
 
-  const parsed = parseStreamingResponse(generation);
+  const parsed = parseStreamingResponse(analysis ?? generation);
 
   const shouldShowThinkingContent =
     !parsed.isThinkingComplete || isThinkingExpanded;
@@ -74,7 +80,80 @@ export default function Home() {
         Ask
       </button>
 
-      {generation && (
+      {analysis && (
+        <div className="mt-[10px]">
+          <ThinkingDropdown
+            title="Thoughts"
+            isOpen={isThinkingExpanded}
+            onToggle={() => setIsThinkingExpanded(!isThinkingExpanded)}
+          >
+            <div className="whitespace-pre-wrap items-center gap-2 leading-relaxed">
+              {analysis}
+            </div>
+          </ThinkingDropdown>
+          <div className="mt-[10px]">
+            <ReactMarkdown
+              components={{
+                p: (props) => (
+                  <p
+                    className="text-[16px] font-normal text-white"
+                    {...props}
+                  />
+                ),
+                hr: (props) => (
+                  <hr className="border-[#303030] my-[20px]" {...props} />
+                ),
+                h1: (props) => (
+                  <h1
+                    className="text-[24px] font-medium text-white mb-[10px]"
+                    {...props}
+                  />
+                ),
+                h2: (props) => (
+                  <h2
+                    className="text-[20px] font-medium text-white mb-[10px]"
+                    {...props}
+                  />
+                ),
+                h3: (props) => (
+                  <h3
+                    className="text-[18px] font-medium text-white mb-[10px]"
+                    {...props}
+                  />
+                ),
+                h4: (props) => (
+                  <h4
+                    className="text-[16px] font-medium text-white mb-[10px]"
+                    {...props}
+                  />
+                ),
+                h5: (props) => (
+                  <h5
+                    className="text-[14px] font-medium text-white mb-[10px]"
+                    {...props}
+                  />
+                ),
+                h6: (props) => (
+                  <h6
+                    className="text-[12px] font-medium text-white mb-[10px]"
+                    {...props}
+                  />
+                ),
+                li: (props) => (
+                  <li
+                    className="text-[16px] font-normal text-white mb-[10px]"
+                    {...props}
+                  />
+                ),
+              }}
+            >
+              {analysis}
+            </ReactMarkdown>
+          </div>
+        </div>
+      )}
+
+      {generation && !analysis && (
         <>
           {/* Thinking Container */}
           <ThinkingDropdown

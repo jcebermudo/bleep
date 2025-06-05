@@ -10,11 +10,15 @@ const togetherai = createTogetherAI({
 
 export async function generate(input: string) {
   const stream = createStreamableValue("");
+  let isComplete: boolean | null = null;
 
   (async () => {
     const { textStream } = streamText({
       model: togetherai("deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"),
       prompt: input,
+      onFinish: () => {
+        isComplete = true;
+      },
     });
 
     for await (const delta of textStream) {
@@ -24,5 +28,5 @@ export async function generate(input: string) {
     stream.done();
   })();
 
-  return { output: stream.value };
+  return { output: stream.value, isComplete };
 }

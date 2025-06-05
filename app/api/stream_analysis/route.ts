@@ -1,9 +1,5 @@
 import { createTogetherAI } from "@ai-sdk/togetherai";
-import {
-  streamText,
-  extractReasoningMiddleware,
-  wrapLanguageModel,
-} from "ai";
+import { streamText, extractReasoningMiddleware, wrapLanguageModel } from "ai";
 import { NextResponse } from "next/server";
 
 const togetherai = createTogetherAI({
@@ -17,9 +13,9 @@ export async function POST(req: Request) {
 
   const enhancedModel = wrapLanguageModel({
     model: togetherai("deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"),
-    middleware: extractReasoningMiddleware({ 
-      tagName: "think", 
-      startWithReasoning: true // This ensures thinking appears first in stream
+    middleware: extractReasoningMiddleware({
+      tagName: "think",
+      startWithReasoning: true, // This ensures thinking appears first in stream
     }),
   });
 
