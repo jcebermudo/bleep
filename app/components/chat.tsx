@@ -68,7 +68,7 @@ export default function Chat({
       chatContainerRef.current.scrollTop =
         chatContainerRef.current.scrollHeight;
     }
-  }, [status]);
+  }, [messages]);
 
   useEffect(() => {
     if (!chatLoading && chatContainerRef.current) {
@@ -112,17 +112,20 @@ export default function Chat({
           ) : (
             <div className="h-[calc(100vh-200px)]">
               <div className="w-full flex flex-row justify-end mt-[20px]">
-                <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px]">
+                <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px] break-words">
                   {link}
                 </p>
               </div>
-              <Analysis analysis={analysis} generation={generation} />
               <div className="pb-[50px]">
+                  <Analysis
+                    analysis={analysis || ""}
+                    generation={generation || ""}
+                  />
                 {messages.map((m, index) => (
                   <div key={m.id}>
                     {m.role == "user" ? (
                       <div className="w-full flex flex-row justify-end mt-[20px]">
-                        <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px]">
+                        <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px] break-words">
                           {m.content}
                         </p>
                       </div>

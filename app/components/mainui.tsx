@@ -246,6 +246,7 @@ export default function MainUI({
                 .join("\n")}` +
               `Here is the information about the product: ${gatheredInfo.description}` +
               `Here is the date of creation of the product: ${gatheredInfo.actual_date_of_creation}`,
+            chatId: varchatId,
           }),
         });
 
@@ -353,8 +354,8 @@ export default function MainUI({
             id={chatId}
             initialMessages={messages}
             link={renderedLink}
-            generation={generation}
-            analysis={analysis}
+            generation={generation || ""}
+            analysis={analysis || ""}
             chatLoading={chatLoading}
           />
           <div>
