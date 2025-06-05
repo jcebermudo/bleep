@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { generate } from "@/tools/testing";
 import { readStreamableValue } from "ai/rsc";
 import { ChevronDown, ChevronRight, Brain, MessageSquare } from "lucide-react";
@@ -55,6 +55,10 @@ export default function Analysis({
 
   const shouldShowThinkingContent =
     !parsed.isThinkingComplete || isThinkingExpanded;
+
+  useEffect(() => {
+    
+  }, [analysis]);
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-4 overflow-y-auto">
