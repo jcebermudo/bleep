@@ -35,6 +35,77 @@ interface Info {
   updated_at: string;
 }
 
+const fetchProjectInfo = async (
+  slug: string,
+  userId: string,
+  sessionLink?: string,
+  sessionLinkId?: string
+) => {
+  if (sessionLink && slug === sessionLinkId) {
+    // Handle new project flow
+    const infoResponse = await fetch("/api/scrape_info", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ link: sessionLink }),
+    });
+    const infoData = await infoResponse.json();
+
+    const projectResponse = await fetch("/api/new_project", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        linkId: sessionLinkId,
+        userId,
+        link: sessionLink,
+        name: infoData.info.name,
+        icon: infoData.info.icon,
+        description: infoData.info.description,
+      }),
+    });
+    const projectData = await projectResponse.json();
+
+    const newchatResponse = await fetch("/api/new_chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        projectId: projectData.info,
+      }),
+    });
+    const newchatData = await newchatResponse.json();
+
+    return {
+      info: infoData.info,
+      projectId: projectData.info,
+      chatId: newchatData.chatId,
+    };
+  } else {
+    // Handle existing project flow
+    const response = await fetch("/api/get_info", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug, userId }),
+    });
+    const data = await response.json();
+    return {
+      info: data.project,
+      projectId: data.project.id,
+      reviews: data.reviews,
+    };
+  }
+};
+
+const fetchChat = async (projectId: string) => {
+  const response = await fetch("/api/get_chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ projectId }),
+  });
+  const data = await response.json();
+  return data.chat[0];
+};
+
 export default function MainUI({
   slug,
   userId,
