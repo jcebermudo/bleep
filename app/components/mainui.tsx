@@ -82,28 +82,39 @@ const fetchProjectInfo = async (
     };
   } else {
     // Handle existing project flow
-    const response = await fetch("/api/get_info", {
+    const existingInfoResponse = await fetch("/api/get_info", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slug, userId }),
     });
-    const data = await response.json();
+    const existingInfoData = await existingInfoResponse.json();
+
+    const existingChatResponse = await fetch("/api/get_chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId: existingInfoData.project.id }),
+    });
+    const existingChatData = await existingChatResponse.json();
+
+    const existingMessagesResponse = await fetch("/api/get_messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        chatId: existingChatData.chat[0].id,
+      }),
+    });
+    const existingMessagesData = await existingMessagesResponse.json();
+
     return {
-      info: data.project,
-      projectId: data.project.id,
-      reviews: data.reviews,
+      info: existingInfoData.project,
+      projectId: existingInfoData.project.id,
+      reviews: existingInfoData.reviews,
+      chatId: existingChatData.chat[0].id,
+      messages: existingMessagesData.chatmessages,
     };
   }
-};
-
-const fetchChat = async (projectId: string) => {
-  const response = await fetch("/api/get_chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ projectId }),
-  });
-  const data = await response.json();
-  return data.chat[0];
 };
 
 export default function MainUI({
