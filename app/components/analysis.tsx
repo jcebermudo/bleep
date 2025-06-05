@@ -24,7 +24,17 @@ export default function Analysis({
   analysis?: string;
   generation?: string;
 }) {
-  console.log("Analysis component props:", { analysis, generation });
+  console.log("Analysis component props:", {
+    analysis: analysis || "(empty string)",
+    generation: generation || "(empty string)",
+    analysisLength: analysis?.length || 0,
+    generationLength: generation?.length || 0,
+  });
+
+  // Return null if both analysis and generation are empty or undefined
+  if (!analysis && !generation) {
+    return null;
+  }
 
   const [isThinkingExpanded, setIsThinkingExpanded] = useState(false);
 
@@ -58,14 +68,14 @@ export default function Analysis({
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-4 overflow-y-auto">
-      {analysis && (
+      {analysis && analysis.trim() && (
         <div className="mt-[10px]">
           <ThinkingDropdown
             title="Thoughts"
             isOpen={isThinkingExpanded}
             onToggle={() => setIsThinkingExpanded(!isThinkingExpanded)}
           >
-            <div className="whitespace-pre-wrap items-center gap-2 leading-relaxed">
+            <div className="whitespace-pre-wrap items-center gap-2">
               {analysis}
             </div>
           </ThinkingDropdown>
@@ -131,7 +141,7 @@ export default function Analysis({
         </div>
       )}
 
-      {generation && !analysis && (
+      {generation && !analysis?.trim() && (
         <>
           {/* Thinking Container */}
           <ThinkingDropdown
@@ -145,7 +155,7 @@ export default function Analysis({
           </ThinkingDropdown>
 
           {/* Response Container */}
-          {parsed.response && (
+          {parsed.response && parsed.response.trim() && (
             <div className="mt-[10px]">
               <ReactMarkdown
                 components={{

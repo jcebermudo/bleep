@@ -137,14 +137,14 @@ export default function MainUI({
     updated_at: "",
   });
   const [review, setReviews] = useState<Review[]>([]);
-  const [analysis, setAnalysis] = useState<string | undefined>(undefined);
+  const [analysis, setAnalysis] = useState<string>("");
   const [chatId, setChatId] = useState<string | undefined>(undefined);
   const [messages, setMessages] = useState<Message[]>([]);
   const [infoloading, setInfoLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(true);
-  const [generation, setGeneration] = useState<string | undefined>(undefined);
+  const [generation, setGeneration] = useState<string>("");
   const [renderedLink, setRenderedLink] = useState<string | undefined>(
-    undefined,
+    undefined
   );
   const [isLinkLoading, setIsLinkLoading] = useState(true);
   const hasRun = useRef(false);
@@ -157,7 +157,7 @@ export default function MainUI({
     let varchatId: string;
     const sessionLink = JSON.parse(sessionStorage.getItem("link") || "{}").link;
     const sessionLinkId = JSON.parse(
-      sessionStorage.getItem("link") || "{}",
+      sessionStorage.getItem("link") || "{}"
     ).linkId;
     if (sessionLink) {
       setRenderedLink(sessionLink);
@@ -241,7 +241,9 @@ export default function MainUI({
             prompt:
               `Generate a comprehensive report on ${gatheredInfo.name} and create an idea for a competing product based on the user reviews.` +
               `The report should be in markdown format.` +
-              `Here are the user reviews: ${gatheredReview.map((review) => review.text).join("\n")}` +
+              `Here are the user reviews: ${gatheredReview
+                .map((review) => review.text)
+                .join("\n")}` +
               `Here is the information about the product: ${gatheredInfo.description}` +
               `Here is the date of creation of the product: ${gatheredInfo.actual_date_of_creation}`,
           }),
@@ -259,7 +261,7 @@ export default function MainUI({
 
             const chunk = decoder.decode(value);
             setGeneration(
-              (currentGeneration) => `${currentGeneration}${chunk}`
+              (currentGeneration) => `${currentGeneration || ""}${chunk}`
             );
           }
         } finally {
@@ -351,6 +353,7 @@ export default function MainUI({
             id={chatId}
             initialMessages={messages}
             link={renderedLink}
+            generation={generation}
             analysis={analysis}
             chatLoading={chatLoading}
           />

@@ -33,7 +33,7 @@ export default function ThinkingDropdown({
 
       <div
         className={`transition-all duration-300 ease-out ${
-          isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
+          isOpen ? "max-h-[3000px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <div className="">
