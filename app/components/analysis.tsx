@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { generate } from "@/tools/testing";
-import { readStreamableValue } from "ai/rsc";
+import { readStreamableValue, createStreamableValue } from "ai/rsc";
 import { ChevronDown, ChevronRight, Brain, MessageSquare } from "lucide-react";
 import ThinkingDropdown from "../components/thinking-dropdown";
 import { motion, AnimatePresence } from "motion/react";
@@ -26,7 +26,6 @@ export default function Analysis({
 }) {
   const [generation, setGeneration] = useState<string>("");
   const [isThinkingExpanded, setIsThinkingExpanded] = useState(false);
-  const [isResponseComplete, setIsResponseComplete] = useState(false);
 
   const parseStreamingResponse = (text: string): ParsedResponse => {
     const thinkRegex = /<think>([\s\S]*?)(<\/think>|$)/;
@@ -57,8 +56,26 @@ export default function Analysis({
     !parsed.isThinkingComplete || isThinkingExpanded;
 
   useEffect(() => {
-    
-  }, [analysis]);
+    if (analysis) {
+      return;
+    }
+    const generateAnalysis = async () => {
+      const response = await fetch("/api/analysis", {
+        method: "POST",
+        body: JSON.stringify({
+          prompt: prompt,
+        }),
+      });
+
+      const data = await response.json();
+      const stream = data.output;
+      for await (const delta of readStreamableValue(stream)) {
+        setGeneration((currentGeneration) => `${currentGeneration}${delta}`);
+      }
+    };
+
+    generateAnalysis();
+  }, [prompt]);
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-4 overflow-y-auto">
@@ -66,13 +83,7 @@ export default function Analysis({
         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
         onClick={async () => {
           setGeneration(""); // Reset generation
-          const { output, isComplete } = await generate(
-            "Why is albert einstein so smart?"
-          );
-
-          if (isComplete) {
-            setIsResponseComplete(true);
-          }
+          const { output } = await generate("Why is albert einstein so smart?");
 
           for await (const delta of readStreamableValue(output)) {
             setGeneration(

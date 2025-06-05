@@ -35,7 +35,7 @@ interface Info {
   updated_at: string;
 }
 
-const fetchProjectInfo = async (
+/* const fetchProjectInfo = async (
   slug: string,
   userId: string,
   sessionLink?: string,
@@ -115,7 +115,7 @@ const fetchProjectInfo = async (
       messages: existingMessagesData.chatmessages,
     };
   }
-};
+}; */
 
 export default function MainUI({
   slug,

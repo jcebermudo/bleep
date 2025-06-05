@@ -3,19 +3,21 @@
 import { streamText } from "ai";
 import { createTogetherAI } from "@ai-sdk/togetherai";
 import { createStreamableValue } from "ai/rsc";
+import { NextResponse } from "next/server";
 
 const togetherai = createTogetherAI({
   apiKey: process.env.TOGETHER_AI_API_KEY ?? "",
 });
 
-export async function generate(input: string) {
+export async function POST(req: Request) {
+  const { prompt } = await req.json();
+
   const stream = createStreamableValue("");
-  let isComplete: boolean | null = null;
 
   (async () => {
     const { textStream } = streamText({
       model: togetherai("deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"),
-      prompt: input,
+      prompt: prompt,
     });
 
     for await (const delta of textStream) {
@@ -25,5 +27,5 @@ export async function generate(input: string) {
     stream.done();
   })();
 
-  return { output: stream.value };
+  return NextResponse.json({ output: stream });
 }
