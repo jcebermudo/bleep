@@ -162,7 +162,7 @@ export default function Chat({
                     messages.length > 0 &&
                     messages[messages.length - 1].role !== "user" &&
                     messages[messages.length - 1].parts?.some(
-                      (part) => part.type === "reasoning"
+                      (part) => part.type === "reasoning",
                     ) &&
                     !(
                       messages[messages.length - 1].content?.trim().length > 0
@@ -206,7 +206,7 @@ export default function Chat({
                           (index === messages.length - 1 && // This is the most recent message
                             m.role === "assistant" &&
                             m.parts?.some(
-                              (part) => part.type === "reasoning"
+                              (part) => part.type === "reasoning",
                             ) &&
                             !(m.content?.trim().length > 0)) ? (
                             <p className="font-medium text-[16px] flex items-center">
@@ -234,7 +234,7 @@ export default function Chat({
                                         index === messages.length - 1 && // Only for the most recent message
                                         m.role !== "user" &&
                                         m.parts?.some(
-                                          (part) => part.type === "reasoning"
+                                          (part) => part.type === "reasoning",
                                         ) &&
                                         !(m.content?.trim().length > 0))
                                     }
