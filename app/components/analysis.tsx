@@ -101,7 +101,7 @@ export default function Analysis({
         {/* Only show "Thinking..." for the most recent AI message */}
         {!isThinkingCompleteUI ? (
           <p className="font-medium text-[16px] flex items-center">
-            Thinking<span className="thinking-text"></span>
+            Making your report<span className="thinking-text"></span>
             <style jsx>{styles}</style>
           </p>
         ) : (
