@@ -142,7 +142,7 @@ export default function Chat({
                 }}
                 className="w-full flex flex-row justify-end mt-[20px]"
               >
-                <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px] break-words">
+                <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] outline-[1px] outline-[#2D2D2D] rounded-[20px] max-w-[500px] break-words">
                   {link}
                 </p>
               </motion.div>
@@ -155,7 +155,7 @@ export default function Chat({
                   <div key={m.id}>
                     {m.role == "user" ? (
                       <div className="w-full flex flex-row justify-end mt-[20px]">
-                        <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px] break-words">
+                        <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] outline-[1px] outline-[#2D2D2D] rounded-[20px] max-w-[500px] break-words">
                           {m.content}
                         </p>
                       </div>
@@ -314,7 +314,7 @@ export default function Chat({
             e.preventDefault();
             handleSubmit(e);
           }}
-          className="w-full max-w-[750px] bg-[#171717] rounded-[20px] p-[15px] mb-[50px]"
+          className="w-full max-w-[750px] bg-[#171717] outline-[1px] outline-[#2D2D2D] rounded-[20px] p-[15px] mb-[50px]"
         >
           <textarea
             className="resize-none font-normal outline-none focus:outline-none text-white placeholder:text-[#B5B5B5] placeholder:font-normal placeholder:text-[16px] w-full pr-8 h-[50px]"
