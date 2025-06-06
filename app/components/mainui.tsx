@@ -371,8 +371,8 @@ export default function MainUI({
     fetchInfo();
   }, [slug, userId]);
   return (
-    <div className="w-full h-full flex flex-col items-center px-[10px] justify-center bg-black">
-      <div className="rounded-t-[20px] bg-[#070707] w-full h-screen mt-[10px]">
+    <div className="w-full flex-1 flex flex-col mt-[10px]">
+      <div className="rounded-t-[20px] bg-[#070707] outline-[1px] outline-[#2D2D2D] w-full flex-1">
         <div className="flex flex-row justify-end gap-[5px]">
           <Chat
             id={chatId}
@@ -386,7 +386,7 @@ export default function MainUI({
           />
           <div className="flex justify-end">
             <div
-              className={`bg-[#101010] h-screen rounded-t-[20px] p-[20px] overflow-x-hidden overflow-y-auto transition-all duration-300 ease-in-out origin-right ${
+              className={`bg-[#101010] w-full h-screen rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px] overflow-x-hidden overflow-y-auto transition-all duration-300 ease-in-out origin-right ${
                 infoloading
                   ? "w-0 opacity-0 scale-x-0"
                   : "max-w-[600px] w-full opacity-100 scale-x-100"
@@ -416,7 +416,7 @@ export default function MainUI({
                             damping: 20,
                           }, // Duration for the slide up
                         }}
-                        className="flex flex-row items-center gap-[15px] bg-[#171717] outline-[1px] outline-[#2D2D2D] rounded-[20px] p-[20px]"
+                        className="flex flex-row items-center gap-[15px]  bg-[#171717] outline-[1px] outline-[#2D2D2D] rounded-[20px] p-[20px]"
                       >
                         <Image
                           src={info.icon}
