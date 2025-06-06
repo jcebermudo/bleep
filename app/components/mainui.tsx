@@ -11,6 +11,21 @@ import Markdown from "react-markdown";
 import { motion } from "motion/react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
+const styles = `
+  @keyframes ellipsis {
+    0% { content: '.'; }
+    33% { content: '..'; }
+    66% { content: '...'; }
+  }
+  .thinking-text::after {
+    content: '...';
+    animation: ellipsis 1.5s infinite;
+    display: inline-block;
+    width: 1.5em;
+    text-align: left;
+  }
+`;
+
 interface Review {
   id: number;
   project_id: number;
@@ -142,6 +157,8 @@ export default function MainUI({
   const [messages, setMessages] = useState<Message[]>([]);
   const [infoloading, setInfoLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(true);
+  const [extensionInfoLoading, setExtensionInfoLoading] = useState(true);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
   const [generation, setGeneration] = useState<string>("");
   const [renderedLink, setRenderedLink] = useState<string | undefined>(
     undefined
@@ -186,6 +203,7 @@ export default function MainUI({
           created_at: infoData.info?.created_at,
           updated_at: infoData.info?.updated_at,
         });
+        setExtensionInfoLoading(false);
         const project = await fetch("/api/new_project", {
           method: "POST",
           headers: {
@@ -216,6 +234,7 @@ export default function MainUI({
         gatheredReview = reviewsData.fetchReviews;
         setReviews(reviewsData.fetchReviews);
         setInfoLoading(false);
+        setReviewsLoading(false);
       }
 
       if (sessionLink && slug === sessionLinkId) {
@@ -300,6 +319,8 @@ export default function MainUI({
         gatheredReview = infoData.reviews;
         setReviews(infoData.reviews);
         setInfoLoading(false);
+        setExtensionInfoLoading(false);
+        setReviewsLoading(false);
       }
 
       if (!sessionLink) {
@@ -350,7 +371,7 @@ export default function MainUI({
   return (
     <div className="w-full h-full flex flex-col items-center px-[10px] justify-center bg-black">
       <div className="rounded-t-[20px] bg-[#070707] w-full h-screen mt-[10px]">
-        <div className="flex flex-row justify-between gap-[5px]">
+        <div className="flex flex-row justify-end gap-[5px]">
           <Chat
             id={chatId}
             initialMessages={messages}
@@ -358,285 +379,330 @@ export default function MainUI({
             generation={generation || ""}
             analysis={analysis || ""}
             chatLoading={chatLoading}
+            extensionInfoLoading={extensionInfoLoading}
+            reviewsLoading={reviewsLoading}
           />
-          <div>
-            <div className="bg-[#101010] h-screen rounded-t-[20px] p-[20px] max-w-[700px] min-w-[700px] overflow-y-auto">
+          <div className="flex justify-end">
+            <div
+              className={`bg-[#101010] h-screen rounded-t-[20px] p-[20px] overflow-x-hidden overflow-y-auto transition-all duration-300 ease-in-out origin-right ${
+                infoloading
+                  ? "w-0 opacity-0 scale-x-0"
+                  : "max-w-[600px] w-full opacity-100 scale-x-100"
+              }`}
+            >
               {infoloading ? (
                 <p>Loading...</p>
               ) : (
                 <>
-                  <motion.div
-                    
-                    className="flex flex-col"
-                  >
-                    <motion.div initial={{
-                      opacity: 0,
-                      x: 200, // Start from bottom
-                    }}
-                    animate={{
-                      opacity: 1,
-                      x: 0, // Slide up to top
-                    }}
-                    transition={{
-                      opacity: { duration: 0.5 },
-                      x: {
-                        duration: 0.5,
-                        type: "spring",
-                        stiffness: 500,
-                        damping: 20,
-                      }, // Duration for the slide up
-                    }} className="flex flex-row items-center gap-[15px] bg-[#171717] outline-[1px] outline-[#2D2D2D] rounded-[20px] p-[20px]">
-                      <Image
-                        src={info.icon}
-                        alt={info.name}
-                        width={40}
-                        height={40}
-                      />
-                      {info && (
-                        <div className="font-medium text-[16px]">
-                          {info.name}
-                        </div>
-                      )}
-                    </motion.div>
-                    <motion.div
-                    initial={{
-                      opacity: 0,
-                      x: 200, // Start from bottom
-                    }}
-                    animate={{
-                      opacity: 1,
-                      x: 0, // Slide up to top
-                    }}
-                    transition={{
-                      opacity: { duration: 0.5, delay: 0.1 },
-                      x: {
-                        duration: 0.5,
-                        type: "spring",
-                        stiffness: 500,
-                        damping: 20,
-                        delay: 0.1,
-                      }, // Duration for the slide up
-                    }} className=" bg-[#171717] outline-[1px] outline-[#2D2D2D] rounded-[20px] p-[20px] mt-[20px]">
-                      <p className="font-medium text-[16px] text-[#B5B5B5]">
-                        About
-                      </p>
-                      {info && <ShowMore text={info.description} />}
-                    </motion.div>
-                  </motion.div>
-                  <motion.div
-                    initial={{
-                      opacity: 0,
-                      x: 200, // Start from bottom
-                    }}
-                    animate={{
-                      opacity: 1,
-                      x: 0, // Slide up to top
-                    }}
-                    transition={{
-                      opacity: { duration: 0.5, delay: 0.2 },
-                      x: {
-                        duration: 0.5,
-                        type: "spring",
-                        stiffness: 500,
-                        damping: 20,
-                        delay: 0.2,
-                      }, // Duration for the slide up
-                    }}
-                    className="flex flex-col mt-[20px]"
-                  >
-                    <div className="bg-[#171717] rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
-                      <p className="font-medium text-white text-[16px]">
-                        Found {review.length} reviews below 5 stars
-                      </p>
-                    </div>
-                    <div className="bg-[#171717] rounded-b-[20px] outline-[1px] outline-[#2D2D2D] p-[20px] space-y-[20px]">
-                      {review && review.length > 0 ? (
-                        review.map((item, index) => (
-                          <div
-                            className="p-[20px] outline-[1px] outline-[#2D2D2D] bg-[#202020] rounded-[20px] space-y-[5px]"
-                            key={index}
-                          >
-                            <div>
-                              {item.rating == 4 ? (
-                                <div className="flex flex-row gap-[1px]">
-                                  <Image
-                                    src="/images/star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                </div>
-                              ) : item.rating == 3 ? (
-                                <div className="flex flex-row gap-[1px]">
-                                  <Image
-                                    src="/images/star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                </div>
-                              ) : item.rating == 2 ? (
-                                <div className="flex flex-row gap-[1px]">
-                                  <Image
-                                    src="/images/star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                </div>
-                              ) : item.rating == 1 ? (
-                                <div className="flex flex-row gap-[1px]">
-                                  <Image
-                                    src="/images/star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                </div>
-                              ) : item.rating == 0 ? (
-                                <div className="flex flex-row gap-[1px]">
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <Image
-                                    src="/images/empty-star.svg"
-                                    alt="star"
-                                    width={18}
-                                    height={18}
-                                  />
-                                </div>
-                              ) : (
-                                item.rating
-                              )}
-                            </div>
-                            <ShowMore text={item.text} />
-                            <p className="text-[#B5B5B5] font-normal text-[16px]">
-                              {item.date}
-                            </p>
+                  {!extensionInfoLoading && (
+                    <motion.div className="flex flex-col">
+                      <motion.div
+                        initial={{
+                          opacity: 0,
+                          x: 200, // Start from bottom
+                        }}
+                        animate={{
+                          opacity: 1,
+                          x: 0, // Slide up to top
+                        }}
+                        transition={{
+                          opacity: { duration: 0.5 },
+                          x: {
+                            duration: 0.5,
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 20,
+                          }, // Duration for the slide up
+                        }}
+                        className="flex flex-row items-center gap-[15px] bg-[#171717] outline-[1px] outline-[#2D2D2D] rounded-[20px] p-[20px]"
+                      >
+                        <Image
+                          src={info.icon}
+                          alt={info.name}
+                          width={40}
+                          height={40}
+                        />
+                        {info && (
+                          <div className="font-medium text-[16px]">
+                            {info.name}
                           </div>
-                        ))
-                      ) : (
-                        <p>No reviews available</p>
-                      )}
-                    </div>
-                  </motion.div>
+                        )}
+                      </motion.div>
+                      <motion.div
+                        initial={{
+                          opacity: 0,
+                          x: 200, // Start from bottom
+                        }}
+                        animate={{
+                          opacity: 1,
+                          x: 0, // Slide up to top
+                        }}
+                        transition={{
+                          opacity: { duration: 0.5, delay: 0.1 },
+                          x: {
+                            duration: 0.5,
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 20,
+                            delay: 0.1,
+                          }, // Duration for the slide up
+                        }}
+                        className=" bg-[#171717] outline-[1px] outline-[#2D2D2D] rounded-[20px] p-[20px] mt-[20px]"
+                      >
+                        <p className="font-medium text-[16px] text-[#B5B5B5]">
+                          About
+                        </p>
+                        {info && <ShowMore text={info.description} />}
+                      </motion.div>
+                    </motion.div>
+                  )}
+                  {!reviewsLoading && !extensionInfoLoading && (
+                    <motion.div
+                      initial={{
+                        opacity: 0,
+                        x: 200, // Start from bottom
+                      }}
+                      animate={{
+                        opacity: 1,
+                        x: 0, // Slide up to top
+                      }}
+                      transition={{
+                        opacity: { duration: 0.5, delay: 0.2 },
+                        x: {
+                          duration: 0.5,
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 20,
+                          delay: 0.1,
+                        }, // Duration for the slide up
+                      }}
+                      className="flex flex-col mt-[20px] animate-pulse"
+                    >
+                      <div className="bg-[#171717] rounded-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
+                        <p className="font-medium text-white text-[16px]">
+                          Loading reviews
+                          <span className="thinking-text"></span>
+                          <style jsx>{styles}</style>
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                  {!reviewsLoading && (
+                    <motion.div
+                      initial={{
+                        opacity: 0,
+                        x: 200, // Start from bottom
+                      }}
+                      animate={{
+                        opacity: 1,
+                        x: 0, // Slide up to top
+                      }}
+                      transition={{
+                        opacity: { duration: 0.5, delay: 0.2 },
+                        x: {
+                          duration: 0.5,
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 20,
+                          delay: 0.2,
+                        }, // Duration for the slide up
+                      }}
+                      className="flex flex-col mt-[20px]"
+                    >
+                      <div className="bg-[#171717] rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
+                        <p className="font-medium text-white text-[16px]">
+                          Found {review.length} reviews below 5 stars
+                        </p>
+                      </div>
+                      <div className="bg-[#171717] rounded-b-[20px] outline-[1px] outline-[#2D2D2D] p-[20px] space-y-[20px]">
+                        {review && review.length > 0 ? (
+                          review.map((item, index) => (
+                            <div
+                              className="p-[20px] outline-[1px] outline-[#2D2D2D] bg-[#202020] rounded-[20px] space-y-[5px]"
+                              key={index}
+                            >
+                              <div>
+                                {item.rating == 4 ? (
+                                  <div className="flex flex-row gap-[1px]">
+                                    <Image
+                                      src="/images/star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                  </div>
+                                ) : item.rating == 3 ? (
+                                  <div className="flex flex-row gap-[1px]">
+                                    <Image
+                                      src="/images/star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                  </div>
+                                ) : item.rating == 2 ? (
+                                  <div className="flex flex-row gap-[1px]">
+                                    <Image
+                                      src="/images/star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                  </div>
+                                ) : item.rating == 1 ? (
+                                  <div className="flex flex-row gap-[1px]">
+                                    <Image
+                                      src="/images/star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                  </div>
+                                ) : item.rating == 0 ? (
+                                  <div className="flex flex-row gap-[1px]">
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <Image
+                                      src="/images/empty-star.svg"
+                                      alt="star"
+                                      width={18}
+                                      height={18}
+                                    />
+                                  </div>
+                                ) : (
+                                  item.rating
+                                )}
+                              </div>
+                              <ShowMore text={item.text} />
+                              <p className="text-[#B5B5B5] font-normal text-[16px]">
+                                {item.date}
+                              </p>
+                            </div>
+                          ))
+                        ) : (
+                          <p>No reviews available</p>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
                 </>
               )}
             </div>
