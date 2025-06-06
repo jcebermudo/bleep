@@ -79,7 +79,7 @@ export default function User({
                   damping: 20,
                 }, // Duration for the slide up
               }}
-              className="absolute mr-[10px] top-[57px] right-[0px] bg-[#070707] outline-[1px] outline-[#2D2D2D] p-[20px] rounded-[20px]"
+              className="absolute z-50 mr-[10px] top-[57px] right-[0px] bg-[#070707] outline-[1px] outline-[#2D2D2D] p-[20px] rounded-[20px]"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="space-y-[5px]">
