@@ -10,6 +10,8 @@ import ThinkingDropdown from "./thinking-dropdown";
 import Analysis from "./analysis";
 import { motion } from "motion/react";
 
+import { LoaderCircle } from "lucide-react";
+
 const styles = `
   @keyframes ellipsis {
     0% { content: '.'; }
@@ -32,6 +34,9 @@ export default function Chat({
   analysis,
   generation,
   chatLoading,
+  infoloading,
+  extensionInfoLoading,
+  reviewsLoading,
 }: {
   id?: string | undefined;
   initialMessages?: Message[];
@@ -40,6 +45,9 @@ export default function Chat({
   analysis?: string;
   generation?: string | undefined;
   chatLoading?: boolean;
+  infoloading?: boolean;
+  extensionInfoLoading?: boolean;
+  reviewsLoading?: boolean;
 } = {}) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [reasoning, setReasoning] = useState(false);
@@ -119,7 +127,9 @@ export default function Chat({
             {isGenerating.toString()}
           </div>
           {chatLoading ? (
-            <p>Loading chat...</p>
+            <div className="flex items-center justify-center w-full h-full">
+              <LoaderCircle className="w-10 h-10 animate-spin opacity-70" />
+            </div>
           ) : (
             <div className="h-[calc(100vh-200px)]">
               <motion.div
@@ -154,11 +164,27 @@ export default function Chat({
                 {messages.map((m, index) => (
                   <div key={m.id}>
                     {m.role == "user" ? (
-                      <div className="w-full flex flex-row justify-end mt-[20px]">
+                      <motion.div
+                        initial={
+                          index === messages.length - 1
+                            ? { opacity: 0, y: 20 }
+                            : false
+                        }
+                        animate={
+                          index === messages.length - 1
+                            ? { opacity: 1, y: 0 }
+                            : false
+                        }
+                        transition={{
+                          opacity: { duration: 0.3 },
+                          y: { type: "spring", stiffness: 500, damping: 25 },
+                        }}
+   
+                      className="w-full flex flex-row justify-end mt-[20px]">
                         <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] outline-[1px] outline-[#2D2D2D] rounded-[20px] max-w-[500px] break-words">
                           {m.content}
                         </p>
-                      </div>
+                      </motion.div>
                     ) : (
                       <div className="mt-[20px]">
                         <div className="flex flex-row items-center gap-[8px]">
@@ -289,7 +315,27 @@ export default function Chat({
                 ))}
                 {status === "submitted" ? (
                   <div className="mt-[20px]">
-                    <div className="flex flex-row items-center gap-[8px]">
+                    <motion.div
+                      initial={{
+                        opacity: 0,
+                        y: 10, // Start from bottom
+                      }}
+                      animate={{
+                        opacity: 1,
+                        y: 0, // Slide up to top
+                      }}
+                      transition={{
+                        opacity: { duration: 0.5 },
+                        y: {
+                          duration: 0.5,
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 20,
+                          delay: 0.1,
+                        }, // Duration for the slide up
+                      }}
+                      className="flex flex-row items-center gap-[8px]"
+                    >
                       <Image
                         src="/images/bleep.svg"
                         alt="bleep"
@@ -300,7 +346,7 @@ export default function Chat({
                         Thinking<span className="thinking-text"></span>
                         <style jsx>{styles}</style>
                       </p>
-                    </div>
+                    </motion.div>
                   </div>
                 ) : null}
               </div>
