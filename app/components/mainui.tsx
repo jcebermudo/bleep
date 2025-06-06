@@ -348,7 +348,7 @@ export default function MainUI({
   }, [slug, userId]);
   return (
     <div className="w-full h-full flex flex-col items-center px-[10px] justify-center bg-black">
-      <div className="rounded-t-[20px] outline-[1px] outline-[#2D2D2D] bg-[#070707] w-full h-screen mt-[10px]">
+      <div className="rounded-t-[20px] bg-[#070707] w-full h-screen mt-[10px]">
         <div className="flex flex-row justify-between gap-[5px]">
           <Chat
             id={chatId}
@@ -359,7 +359,7 @@ export default function MainUI({
             chatLoading={chatLoading}
           />
           <div>
-            <div className="bg-[#101010] h-screen rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px] max-w-[1000px] min-w-[500px] overflow-y-auto">
+            <div className="bg-[#101010] h-screen rounded-t-[20px] p-[20px] max-w-[1000px] min-w-[500px] overflow-y-auto">
               {infoloading ? (
                 <p>Loading...</p>
               ) : (
@@ -384,7 +384,7 @@ export default function MainUI({
                     }}
                     className="flex flex-col"
                   >
-                    <div className="flex flex-row items-center gap-[15px] bg-[#171717] rounded-t-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
+                    <div className="flex flex-row items-center gap-[15px] bg-[#171717] rounded-[20px] p-[20px]">
                       <Image
                         src={info.icon}
                         alt={info.name}
@@ -397,7 +397,7 @@ export default function MainUI({
                         </div>
                       )}
                     </div>
-                    <div className=" bg-[#171717] rounded-b-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
+                    <div className=" bg-[#171717] rounded-[20px] p-[20px] mt-[20px]">
                       <p className="font-medium text-[16px] text-[#B5B5B5]">
                         About
                       </p>
