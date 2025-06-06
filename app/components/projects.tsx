@@ -36,7 +36,7 @@ export default function Projects({ userId }: { userId: string | null }) {
             <Link
               key={project.id}
               href={`/${project.project_uuid}`}
-              className="cursor-pointer flex flex-col flex-grow items-start gap-[10px] bg-[#171717] w-[250px] px-[30px] py-[20px] rounded-[20px] outline-[1px] outline-[#2D2D2D]"
+              className="cursor-pointer flex flex-col flex-grow items-start gap-[10px] bg-[#171717] max-w-[250px] px-[30px] py-[20px] rounded-[20px] outline-[1px] outline-[#2D2D2D]"
             >
               <Image
                 className="rounded-[15px]"
@@ -45,12 +45,14 @@ export default function Projects({ userId }: { userId: string | null }) {
                 width={50}
                 height={50}
               />
-              <h3 className="font-medium text-[16px] text-left">
-                {project.name}
-              </h3>
-              <p className="text-[16px] font-medium text-[#B9B9B9] text-left">
-                {dayjs(project.actual_date_of_creation).fromNow()}
-              </p>
+              <div className="flex flex-col gap-[5px]">
+                <h3 className="font-medium text-[16px] text-left">
+                  {project.name}
+                </h3>
+                <p className="text-[16px] font-medium text-[#B9B9B9] text-left">
+                  {dayjs(project.actual_date_of_creation).fromNow()}
+                </p>
+              </div>
             </Link>
           ))
         ) : (
