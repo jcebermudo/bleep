@@ -18,11 +18,9 @@ const togetherai = createTogetherAI({
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { message, id } = await req.json();
+  const { message, id, analysisText } = await req.json();
 
   const previousMessages = await loadChat(id);
-
-  const analysis = await db.select().from(chats).where(eq(chats.id, id)).then(res => res[0].analysis);
 
   const messages = appendClientMessage({
     messages: previousMessages,
@@ -37,7 +35,7 @@ export async function POST(req: Request) {
   const result = streamText({
     model: enhancedModel,
     // ... existing code ...
-    system: `You are Bleep, an AI that analyzes Chrome Web Store extension reviews to generate actionable product insights. For casual messages like greetings, thanks, or pleasantries, respond briefly and naturally without analysis. For questions about extension reviews and product insights, provide detailed analysis based on this report: ${analysis}`,
+    system: `You are Bleep, an AI that analyzes Chrome Web Store extension reviews to generate actionable product insights. For casual messages like greetings, thanks, or pleasantries, respond briefly and naturally without analysis. For questions about extension reviews and product insights, provide detailed analysis based on this report: ${analysisText}`,
 // ... existing code ...,
     messages,
     async onFinish({ response }) {
