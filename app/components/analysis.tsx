@@ -95,7 +95,25 @@ export default function Analysis({
     !parsed.isThinkingComplete || isThinkingExpanded;
 
   return (
-    <div className="mt-[20px] max-w-4xl p-[30px] space-y-4 overflow-y-auto bg-[#171717] rounded-[20px]">
+    <motion.div
+      initial={{
+        opacity: 0,
+        scale: 0.94, // Start from bottom
+      }}
+      animate={{
+        opacity: 1,
+        scale: 1, // Slide up to top
+      }}
+      transition={{
+        opacity: { duration: 0.5 },
+        scale: {
+          duration: 0.5,
+          ease: "easeInOut",
+          delay: 0.1,
+        }, // Duration for the slide up
+      }}
+      className="mt-[20px] max-w-4xl p-[30px] space-y-4 overflow-y-auto bg-[#171717] rounded-[20px]"
+    >
       <div className="flex flex-row items-center gap-[8px]">
         <Image src="/images/bleep.svg" alt="bleep" width={25} height={25} />
         {/* Only show "Thinking..." for the most recent AI message */}
@@ -257,6 +275,6 @@ export default function Analysis({
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
