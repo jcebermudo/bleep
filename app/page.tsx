@@ -33,7 +33,7 @@ export default async function Home() {
         </div>
       </div>
       <div className="rounded-t-[20px] outline-[1px] outline-[#2D2D2D] bg-[#070707] w-full h-screen overflow-y-auto pb-[50px] mt-[10px]">
-        <div className="flex flex-col items-center mt-[100px]">
+        <div className="flex flex-col items-center mt-[20px]">
           <div className="relative">
             <motion.div
               className="select-none absolute translate-x-[120%] translate-y-[40%]"
