@@ -112,7 +112,7 @@ export default function Analysis({
           delay: 0.1,
         }, // Duration for the slide up
       }}
-      className="mt-[20px] max-w-4xl p-[30px] space-y-4 overflow-y-auto bg-[#171717] rounded-[20px]"
+      className="mt-[20px] max-w-4xl p-[30px] space-y-4 overflow-y-auto bg-[#171717] outline-[1px] outline-[#2D2D2D] rounded-[20px]"
     >
       <div className="flex flex-row items-center gap-[8px]">
         <Image src="/images/bleep.svg" alt="bleep" width={25} height={25} />
