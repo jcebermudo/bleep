@@ -1,5 +1,5 @@
 {
-  "id": "6983f9bc-d7a6-48c1-b22a-2815c4a101b8",
+  "id": "d80bc927-4d02-450d-98f0-f21c017c858c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -19,6 +19,12 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "analysis": {
+          "name": "analysis",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -41,8 +47,12 @@
           "name": "chats_project_id_project_id_fk",
           "tableFrom": "chats",
           "tableTo": "project",
-          "columnsFrom": ["project_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -81,6 +91,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "parts": {
+          "name": "parts",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'[]'::json"
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -95,8 +112,12 @@
           "name": "messages_chat_id_chats_id_fk",
           "tableFrom": "messages",
           "tableTo": "chats",
-          "columnsFrom": ["chat_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "chat_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -243,8 +264,12 @@
           "name": "reviews_project_id_project_id_fk",
           "tableFrom": "reviews",
           "tableTo": "project",
-          "columnsFrom": ["project_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

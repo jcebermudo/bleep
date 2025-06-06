@@ -1,6 +1,7 @@
 CREATE TABLE "chats" (
 	"id" text PRIMARY KEY NOT NULL,
 	"project_id" integer NOT NULL,
+	"analysis" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -10,6 +11,7 @@ CREATE TABLE "messages" (
 	"chat_id" text NOT NULL,
 	"role" text NOT NULL,
 	"content" text NOT NULL,
+	"parts" json DEFAULT '[]'::json,
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
