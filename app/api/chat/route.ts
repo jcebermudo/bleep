@@ -7,6 +7,9 @@ import {
   wrapLanguageModel,
 } from "ai";
 import { loadChat, saveChat } from "@/tools/chat-store";
+import { db } from "@/db"
+import { chats } from "@/db/schema"
+import { eq } from "drizzle-orm";
 
 const togetherai = createTogetherAI({
   apiKey: process.env.TOGETHER_AI_API_KEY ?? "",
@@ -18,6 +21,8 @@ export async function POST(req: Request) {
   const { message, id } = await req.json();
 
   const previousMessages = await loadChat(id);
+
+  const analysis = await db.select().from(chats).where(eq(chats.id, id)).then(res => res[0].analysis);
 
   const messages = appendClientMessage({
     messages: previousMessages,
@@ -31,7 +36,9 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: enhancedModel,
-    system: `You are Bleep, an AI that analyzes Chrome Web Store extension reviews to generate actionable product insights. Only respond to messages that pertains to your actual purpose.`,
+    // ... existing code ...
+    system: `You are Bleep, an AI that analyzes Chrome Web Store extension reviews to generate actionable product insights. For casual messages like greetings, thanks, or pleasantries, respond briefly and naturally without analysis. For questions about extension reviews and product insights, provide detailed analysis based on this report: ${analysis}`,
+// ... existing code ...,
     messages,
     async onFinish({ response }) {
       // Save the conversation to the database
