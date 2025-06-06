@@ -4,6 +4,7 @@ import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 import { redirect } from "next/navigation";
 import Markdown from "react-markdown";
+import { motion } from "motion/react";
 
 export default function User({
   userId,
@@ -60,7 +61,24 @@ export default function User({
             />
           </button>
           {isOpen && (
-            <div
+            <motion.div
+              initial={{
+                opacity: 0,
+                y: 10, // Start from bottom
+              }}
+              animate={{
+                opacity: 1,
+                y: 0, // Slide up to top
+              }}
+              transition={{
+                opacity: { duration: 0.25 },
+                y: {
+                  duration: 0.5,
+                  type: "spring",
+                  stiffness: 500,
+                  damping: 20,
+                }, // Duration for the slide up
+              }}
               className="absolute mr-[10px] top-[57px] right-[0px] bg-[#070707] outline-[1px] outline-[#2D2D2D] p-[20px] rounded-[20px]"
               onClick={(e) => e.stopPropagation()}
             >
@@ -93,7 +111,7 @@ export default function User({
               <div className="mt-3 -mx-5">
                 <div className="h-px bg-[#2D2D2D]"></div>
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
       ) : (
