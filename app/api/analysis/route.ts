@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
   (async () => {
     const { textStream } = streamText({
-      model: togetherai("deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"),
+      model: togetherai("deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"),
       prompt: prompt,
       async onFinish({ text }) {
         console.log(text);
