@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   });
 
   const enhancedModel = wrapLanguageModel({
-    model: togetherai("deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"),
+    model: togetherai("deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"),
     middleware: extractReasoningMiddleware({ tagName: "think" }),
   });
 
