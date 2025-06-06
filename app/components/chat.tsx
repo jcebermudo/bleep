@@ -6,9 +6,9 @@ import { useEffect, useState, useRef } from "react";
 import { div, p, span } from "motion/react-client";
 import ReactMarkdown from "react-markdown";
 import Image from "next/image";
-import { motion } from "motion/react";
 import ThinkingDropdown from "./thinking-dropdown";
 import Analysis from "./analysis";
+import { motion } from "motion/react";
 
 const styles = `
   @keyframes ellipsis {
@@ -122,11 +122,30 @@ export default function Chat({
             <p>Loading chat...</p>
           ) : (
             <div className="h-[calc(100vh-200px)]">
-              <div className="w-full flex flex-row justify-end mt-[20px]">
+              <motion.div
+                initial={{
+                  opacity: 0,
+                  y: 10, // Start from bottom
+                }}
+                animate={{
+                  opacity: 1,
+                  y: 0, // Slide up to top
+                }}
+                transition={{
+                  opacity: { duration: 0.25 },
+                  y: {
+                    duration: 0.5,
+                    type: "spring",
+                    stiffness: 500,
+                    damping: 20,
+                  }, // Duration for the slide up
+                }}
+                className="w-full flex flex-row justify-end mt-[20px]"
+              >
                 <p className="font-normal text-[16px] text-left px-[15px] py-[20px] bg-[#171717] rounded-[20px] max-w-[500px] break-words">
                   {link}
                 </p>
-              </div>
+              </motion.div>
               <div className="pb-[50px]">
                 <Analysis
                   analysis={analysis || ""}
