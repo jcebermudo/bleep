@@ -121,11 +121,6 @@ export default function Chat({
         ref={chatContainerRef}
       >
         <div className="flex flex-col mx-auto w-full max-w-[700px]">
-          {/* Debug info - remove in production */}
-          <div className="fixed top-4 right-4 bg-black/80 text-white p-2 rounded text-sm">
-            Status: {status} | Reasoning: {reasoning.toString()} | Generating:{" "}
-            {isGenerating.toString()}
-          </div>
           {chatLoading ? (
             <div className="flex items-center justify-center w-full h-full">
               <LoaderCircle className="w-10 h-10 animate-spin opacity-70" />
