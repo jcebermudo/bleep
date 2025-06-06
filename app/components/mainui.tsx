@@ -242,8 +242,9 @@ export default function MainUI({
               `Generate a comprehensive report on ${gatheredInfo.name} and create an idea for a competing product based on the user reviews.` +
               `The report should be in markdown format.` +
               `Here are the user reviews: ${gatheredReview
-                .map((review) => review.text)
-                .join("\n")}` +
+                .map((review) => `"${review.text}" (${review.rating} stars)`)
+                .slice(0, 10)
+                .join("\n\n")}` +
               `Here is the information about the product: ${gatheredInfo.description}` +
               `Here is the date of creation of the product: ${gatheredInfo.actual_date_of_creation}`,
             chatId: varchatId,
@@ -359,13 +360,16 @@ export default function MainUI({
             chatLoading={chatLoading}
           />
           <div>
-            <div className="bg-[#101010] h-screen rounded-t-[20px] p-[20px] max-w-[1000px] min-w-[500px] overflow-y-auto">
+            <div className="bg-[#101010] h-screen rounded-t-[20px] p-[20px] max-w-[700px] min-w-[700px] overflow-y-auto">
               {infoloading ? (
                 <p>Loading...</p>
               ) : (
                 <>
                   <motion.div
-                    initial={{
+                    
+                    className="flex flex-col"
+                  >
+                    <motion.div initial={{
                       opacity: 0,
                       x: 200, // Start from bottom
                     }}
@@ -381,10 +385,7 @@ export default function MainUI({
                         stiffness: 500,
                         damping: 20,
                       }, // Duration for the slide up
-                    }}
-                    className="flex flex-col"
-                  >
-                    <div className="flex flex-row items-center gap-[15px] bg-[#171717] rounded-[20px] p-[20px]">
+                    }} className="flex flex-row items-center gap-[15px] bg-[#171717] outline-[1px] outline-[#2D2D2D] rounded-[20px] p-[20px]">
                       <Image
                         src={info.icon}
                         alt={info.name}
@@ -396,13 +397,31 @@ export default function MainUI({
                           {info.name}
                         </div>
                       )}
-                    </div>
-                    <div className=" bg-[#171717] rounded-[20px] p-[20px] mt-[20px]">
+                    </motion.div>
+                    <motion.div
+                    initial={{
+                      opacity: 0,
+                      x: 200, // Start from bottom
+                    }}
+                    animate={{
+                      opacity: 1,
+                      x: 0, // Slide up to top
+                    }}
+                    transition={{
+                      opacity: { duration: 0.5, delay: 0.1 },
+                      x: {
+                        duration: 0.5,
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 20,
+                        delay: 0.1,
+                      }, // Duration for the slide up
+                    }} className=" bg-[#171717] outline-[1px] outline-[#2D2D2D] rounded-[20px] p-[20px] mt-[20px]">
                       <p className="font-medium text-[16px] text-[#B5B5B5]">
                         About
                       </p>
                       {info && <ShowMore text={info.description} />}
-                    </div>
+                    </motion.div>
                   </motion.div>
                   <motion.div
                     initial={{
@@ -414,13 +433,13 @@ export default function MainUI({
                       x: 0, // Slide up to top
                     }}
                     transition={{
-                      opacity: { duration: 0.5 },
+                      opacity: { duration: 0.5, delay: 0.2 },
                       x: {
                         duration: 0.5,
                         type: "spring",
                         stiffness: 500,
                         damping: 20,
-                        delay: 0.1,
+                        delay: 0.2,
                       }, // Duration for the slide up
                     }}
                     className="flex flex-col mt-[20px]"
