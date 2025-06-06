@@ -10,6 +10,7 @@ import ShowMore from "./showmore";
 import Markdown from "react-markdown";
 import { motion } from "motion/react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { LoaderCircle } from "lucide-react";
 
 const styles = `
   @keyframes ellipsis {
@@ -180,6 +181,7 @@ export default function MainUI({
       setRenderedLink(sessionLink);
       setIsLinkLoading(false);
       setChatLoading(false);
+      setInfoLoading(false);
     }
     const fetchInfo = async () => {
       if (sessionLink && slug === sessionLinkId) {
@@ -456,7 +458,7 @@ export default function MainUI({
                       </motion.div>
                     </motion.div>
                   )}
-                  {!reviewsLoading && !extensionInfoLoading && (
+                  {reviewsLoading && !extensionInfoLoading && (
                     <motion.div
                       initial={{
                         opacity: 0,
@@ -478,7 +480,8 @@ export default function MainUI({
                       }}
                       className="flex flex-col mt-[20px] animate-pulse"
                     >
-                      <div className="bg-[#171717] rounded-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
+                      <div className="bg-[#171717] flex flex-row items-center gap-[10px] rounded-[20px] outline-[1px] outline-[#2D2D2D] p-[20px]">
+                        <LoaderCircle className="w-7 h-7 animate-spin opacity-70" />
                         <p className="font-medium text-white text-[16px]">
                           Loading reviews
                           <span className="thinking-text"></span>
