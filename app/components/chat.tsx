@@ -56,9 +56,20 @@ export default function Chat({
       initialMessages, // initial messages if provided
       sendExtraMessageFields: true, // send id and createdAt for each message
       api: "/api/chat",
+      body: {
+        analysisText:
+          (analysis && analysis.trim() ? analysis : undefined) ||
+          (generation && generation.trim() ? generation : undefined),
+      },
       // only send the last message to the server:
       experimental_prepareRequestBody({ messages, id }) {
-        return { message: messages[messages.length - 1], id };
+        return {
+          message: messages[messages.length - 1],
+          id,
+          analysisText:
+            (analysis && analysis.trim() ? analysis : undefined) ||
+            (generation && generation.trim() ? generation : undefined),
+        };
       },
       experimental_throttle: 50,
     });
@@ -68,7 +79,7 @@ export default function Chat({
       chatContainerRef.current.scrollTop =
         chatContainerRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, analysis, generation]);
 
   useEffect(() => {
     if (!chatLoading && chatContainerRef.current) {
@@ -117,10 +128,10 @@ export default function Chat({
                 </p>
               </div>
               <div className="pb-[50px]">
-                  <Analysis
-                    analysis={analysis || ""}
-                    generation={generation || ""}
-                  />
+                <Analysis
+                  analysis={analysis || ""}
+                  generation={generation || ""}
+                />
                 {messages.map((m, index) => (
                   <div key={m.id}>
                     {m.role == "user" ? (
